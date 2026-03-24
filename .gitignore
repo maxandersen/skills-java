@@ -1,0 +1,20 @@
+# Maven build
+target/
+dependency-reduced-pom.xml
+
+# JBang
+.jbang/
+
+# Compiled classes and JARs
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.DS_Store
+Thumbs.db
