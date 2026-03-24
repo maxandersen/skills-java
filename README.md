@@ -2,7 +2,7 @@
 
 **The CLI for the open agent skills ecosystem** — Java port of [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
-Run it with zero Node.js/npm required, using just Java 11+ via [JBang](https://jbang.dev).
+Run it with zero Node.js/npm required, using just Java 17+ via [JBang](https://jbang.dev).
 
 ## Quick Start
 

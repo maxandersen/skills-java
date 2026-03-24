@@ -35,8 +35,13 @@ public class GitHubProvider implements HostProvider {
     @Override
     public boolean matches(String source) {
         if (source == null) return false;
-        return SHORTHAND.matcher(source.trim()).matches()
-            || GITHUB_URL.matcher(source.trim()).matches();
+        String trimmed = source.trim();
+        // Exclude local paths that start with ./ or ../
+        if (trimmed.startsWith("./") || trimmed.startsWith("../")) {
+            return false;
+        }
+        return SHORTHAND.matcher(trimmed).matches()
+            || GITHUB_URL.matcher(trimmed).matches();
     }
 
     @Override
