@@ -3,6 +3,8 @@ package sh.skills.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,52 @@ public class PluginManifest {
 
     public List<Plugin> getPlugins() { return plugins; }
     public void setPlugins(List<Plugin> plugins) { this.plugins = plugins; }
+
+    /**
+     * Extracts skill paths from the plugin manifest, organized by plugin name.
+     * Resolves relative paths based on pluginRoot and plugin source.
+     *
+     * @param manifest the plugin manifest to process
+     * @return a map from plugin name to list of resolved skill paths
+     */
+    public static Map<String, List<String>> getSkillPaths(PluginManifest manifest) {
+        Map<String, List<String>> result = new HashMap<>();
+
+        if (manifest.plugins == null) {
+            return result;
+        }
+
+        String pluginRoot = manifest.metadata != null && manifest.metadata.pluginRoot != null
+            ? manifest.metadata.pluginRoot
+            : ".";
+
+        for (Plugin plugin : manifest.plugins) {
+            List<String> skillPaths = new ArrayList<>();
+            String source = plugin.source != null ? plugin.source : plugin.name;
+
+            if (plugin.skills != null) {
+                for (String skillPath : plugin.skills) {
+                    // Remove "./" prefix from skill path if present
+                    String cleanedSkillPath = skillPath.startsWith("./")
+                        ? skillPath.substring(2)
+                        : skillPath;
+
+                    // Construct the full path: pluginRoot/source/skillPath
+                    String fullPath;
+                    if (pluginRoot.equals(".")) {
+                        fullPath = "./" + source + "/" + cleanedSkillPath;
+                    } else {
+                        fullPath = pluginRoot + "/" + source + "/" + cleanedSkillPath;
+                    }
+                    skillPaths.add(fullPath);
+                }
+            }
+
+            result.put(plugin.name, skillPaths);
+        }
+
+        return result;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Metadata {
