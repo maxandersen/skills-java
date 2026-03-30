@@ -27,7 +27,7 @@ import java.util.concurrent.Callable;
 )
 public class FindCommand implements Callable<Integer> {
 
-    private static final String SKILLS_API = "https://skills.sh/api/skills";
+    private static final String SKILLS_API = "https://skills.sh/api/search";
 
     @Parameters(index = "0", arity = "0..1", description = "Search query")
     private String query;
