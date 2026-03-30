@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>sh.skills</groupId>
-    <artifactId>skills-java</artifactId>
+    <artifactId>jskills</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>skills-java</name>
+    <name>jskills</name>
     <description>The CLI for the open agent skills ecosystem - Java port of vercel-labs/skills</description>
-    <url>https://github.com/jbangdev/skills-java</url>
+    <url>https://github.com/maxandersen/jskills</url>
 
     <licenses>
         <license>

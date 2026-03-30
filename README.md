@@ -1,4 +1,4 @@
-# skills-java
+# jskills
 
 **The CLI for the open agent skills ecosystem** — Java port of [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
@@ -8,7 +8,7 @@ Run it with zero Node.js/npm required, using just Java 17+ via [JBang](https://j
 
 ```bash
 # Install via JBang (no setup needed)
-jbang skills@jbangdev/skills-java add vercel-labs/agent-skills
+jbang skills@maxandersen/jskills add vercel-labs/agent-skills
 
 # Or install JBang first: https://www.jbang.dev/download/
 ```
@@ -17,31 +17,31 @@ jbang skills@jbangdev/skills-java add vercel-labs/agent-skills
 
 ```bash
 # Add skills from a GitHub repo
-jbang skills@jbangdev/skills-java add vercel-labs/agent-skills
+jbang skills@maxandersen/jskills add vercel-labs/agent-skills
 
 # Add to specific agents
-jbang skills@jbangdev/skills-java add vercel-labs/agent-skills -a claude-code -a cursor
+jbang skills@maxandersen/jskills add vercel-labs/agent-skills -a claude-code -a cursor
 
 # Non-interactive / CI-friendly
-jbang skills@jbangdev/skills-java add vercel-labs/agent-skills --all -y
+jbang skills@maxandersen/jskills add vercel-labs/agent-skills --all -y
 
 # List installed skills
-jbang skills@jbangdev/skills-java list
+jbang skills@maxandersen/jskills list
 
 # Search for skills
-jbang skills@jbangdev/skills-java find web design
+jbang skills@maxandersen/jskills find web design
 
 # Check for updates
-jbang skills@jbangdev/skills-java check
+jbang skills@maxandersen/jskills check
 
 # Update all installed skills
-jbang skills@jbangdev/skills-java update
+jbang skills@maxandersen/jskills update
 
 # Remove a skill
-jbang skills@jbangdev/skills-java remove web-design
+jbang skills@maxandersen/jskills remove web-design
 
 # Create a new skill template
-jbang skills@jbangdev/skills-java init my-new-skill
+jbang skills@maxandersen/jskills init my-new-skill
 ```
 
 ## Commands
@@ -124,10 +124,10 @@ The `test-fixtures/` directory contains JSON test case files that are shared bet
 ## Building from Source
 
 ```bash
-git clone https://github.com/jbangdev/skills-java
-cd skills-java
+git clone https://github.com/maxandersen/jskills
+cd jskills
 mvn package
-java -jar target/skills-java-*.jar --help
+java -jar target/jskills-*.jar --help
 ```
 
 ## License

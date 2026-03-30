@@ -1,5 +1,5 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS sh.skills:skills-java:LATEST
+//DEPS sh.skills:jskills:LATEST
 
 package sh.skills;
 
@@ -16,10 +16,10 @@ import java.util.concurrent.Callable;
  * Mirrors src/cli.ts from the TypeScript source (vercel-labs/skills).
  *
  * Usage via JBang:
- *   jbang skills@jbangdev/skills-java [command] [options]
+ *   jbang skills@maxandersen/jskills [command] [options]
  *
  * Or as a fat jar:
- *   java -jar skills-java.jar [command] [options]
+ *   java -jar jskills.jar [command] [options]
  */
 @Command(
     name = "skills",
@@ -48,7 +48,7 @@ import java.util.concurrent.Callable;
         "  skills remove my-skill",
         "  skills init my-new-skill",
         "",
-        "Documentation: https://github.com/jbangdev/skills-java",
+        "Documentation: https://github.com/maxandersen/jskills",
         "Original project: https://github.com/vercel-labs/skills"
     }
 )

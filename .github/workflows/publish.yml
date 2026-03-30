@@ -58,8 +58,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: `v${version}`,
-              name: `skills-java v${version}`,
-              body: `## skills-java v${version}\n\nJava port of [vercel-labs/skills](https://github.com/vercel-labs/skills).\n\n### Usage\n\`\`\`bash\njbang skills@jbangdev/skills-java add vercel-labs/agent-skills\n\`\`\``,
+              name: `jskills v${version}`,
+              body: `## jskills v${version}\n\nJava port of [vercel-labs/skills](https://github.com/vercel-labs/skills).\n\n### Usage\n\`\`\`bash\njbang skills@maxandersen/jskills add vercel-labs/agent-skills\n\`\`\``,
               draft: false,
               prerelease: false
             });

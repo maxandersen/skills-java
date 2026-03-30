@@ -16,7 +16,7 @@ When a user asks about extending your capabilities, finding agent skills, or wan
 1. Use `skills find [query]` to search for relevant skills
 2. Show the user a curated list of results with names, descriptions, and install counts
 3. Explain how to install a skill with `skills add <source>`
-4. For Java/JBang users, note they can use `jbang skills@jbangdev/skills-java find [query]`
+4. For Java/JBang users, note they can use `jbang skills@maxandersen/jskills find [query]`
 
 ## Examples
 
