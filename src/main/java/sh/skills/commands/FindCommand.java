@@ -67,6 +67,8 @@ public class FindCommand implements Callable<Integer> {
     }
 
     private int execute() throws Exception {
+        Console.showLogo();
+        System.out.println();
         String query = queryWords.isEmpty() ? null : String.join(" ", queryWords);
         String url = SKILLS_API;
         if (query != null && !query.isEmpty()) {

@@ -31,6 +31,25 @@ public class Console {
     private static final String GRAY   = "\u001B[90m";
     private static final String WHITE  = "\u001B[37m";
 
+    // 256-color grays for logo gradient (visible on both light and dark backgrounds)
+    private static final String[] GRAYS = {
+        "\u001B[38;5;250m", // lighter gray
+        "\u001B[38;5;248m",
+        "\u001B[38;5;245m", // mid gray
+        "\u001B[38;5;243m",
+        "\u001B[38;5;240m",
+        "\u001B[38;5;238m", // darker gray
+    };
+
+    private static final String[] LOGO_LINES = {
+        "███████╗██╗  ██╗██╗██╗     ██╗     ███████╗",
+        "██╔════╝██║ ██╔╝██║██║     ██║     ██╔════╝",
+        "███████╗█████╔╝ ██║██║     ██║     ███████╗",
+        "╚════██║██╔═██╗ ██║██║     ██║     ╚════██║",
+        "███████║██║  ██╗██║███████╗███████╗███████║",
+        "╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝╚══════╝",
+    };
+
     private static String apply(String code, String text) {
         if (!COLORS_ENABLED) return text;
         return code + text + RESET;
@@ -78,5 +97,17 @@ public class Console {
     public static void printInline(String msg) {
         System.out.print(msg);
         System.out.flush();
+    }
+
+    /** Print the SKILLS logo with gradient grays */
+    public static void showLogo() {
+        System.out.println();
+        for (int i = 0; i < LOGO_LINES.length; i++) {
+            if (COLORS_ENABLED) {
+                System.out.println(GRAYS[i] + LOGO_LINES[i] + RESET);
+            } else {
+                System.out.println(LOGO_LINES[i]);
+            }
+        }
     }
 }
