@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import sh.skills.commands.AddCommand;
+import sh.skills.tui.InteractiveFind;
 import sh.skills.util.Console;
 
 import java.net.URI;
@@ -71,6 +73,11 @@ public class FindCommand implements Callable<Integer> {
         Console.showLogo();
         Console.log("");
         String query = queryWords.isEmpty() ? null : String.join(" ", queryWords);
+
+        // Interactive mode when no query and TTY is available
+        if (query == null && System.console() != null && !json) {
+            return executeInteractive();
+        }
         String url = SKILLS_API;
         if (query != null && !query.isEmpty()) {
             url += "?q=" + java.net.URLEncoder.encode(query, "UTF-8");
@@ -149,5 +156,33 @@ public class FindCommand implements Callable<Integer> {
             shown++;
         }
         return 0;
+    }
+
+    /**
+     * Interactive fzf-style search using TamboUI.
+     * Matches upstream interactive find behavior.
+     */
+    private int executeInteractive() throws Exception {
+        InteractiveFind finder = new InteractiveFind(null);
+        finder.run();
+
+        InteractiveFind.SkillResult selected = finder.getSelectedResult();
+        if (selected == null) {
+            Console.log(Console.dim("Search cancelled"));
+            Console.log("");
+            return 0;
+        }
+
+        // Show what was selected and install it
+        String pkg = selected.source().isEmpty() ? selected.slug() : selected.source();
+        Console.log("");
+        Console.log("Installing " + Console.bold(selected.name())
+            + " from " + Console.dim(pkg) + "...");
+        Console.log("");
+
+        // Run add command
+        String addSource = selected.addSource();
+        picocli.CommandLine addCmd = new picocli.CommandLine(new AddCommand());
+        return addCmd.execute(addSource);
     }
 }

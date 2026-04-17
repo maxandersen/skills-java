@@ -61,6 +61,18 @@
             <version>${jgit.version}</version>
         </dependency>
 
+        <!-- Terminal UI for interactive find -->
+        <dependency>
+            <groupId>dev.tamboui</groupId>
+            <artifactId>tamboui-toolkit</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.tamboui</groupId>
+            <artifactId>tamboui-jline3-backend</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
