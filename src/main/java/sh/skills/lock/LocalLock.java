@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -110,7 +111,7 @@ public class LocalLock {
                             // Hash the relative path
                             // Normalize separators for consistent cross-platform hashes
                             String relativePath = skillDir.relativize(path).toString().replace('\\', '/');
-                            digest.update(relativePath.getBytes());
+                            digest.update(relativePath.getBytes(StandardCharsets.UTF_8));
                             // Hash the file content
                             digest.update(Files.readAllBytes(path));
                         } catch (IOException e) {

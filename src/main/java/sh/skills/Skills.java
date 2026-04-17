@@ -72,20 +72,27 @@ public class Skills implements Callable<Integer> {
     public Integer call() {
         // No subcommand: show banner + usage hints (matching upstream showBanner)
         Console.showLogo();
-        System.out.println();
+        Console.log("");
         Console.log(Console.dim("The open agent skills ecosystem (ported to Java)"));
-        System.out.println();
-        Console.log("  " + Console.dim("$") + " skills add " + Console.dim("<package>") + "        " + Console.dim("Add a new skill"));
-        Console.log("  " + Console.dim("$") + " skills remove               " + Console.dim("Remove installed skills"));
-        Console.log("  " + Console.dim("$") + " skills list                 " + Console.dim("List installed skills"));
-        Console.log("  " + Console.dim("$") + " skills find " + Console.dim("[query]") + "         " + Console.dim("Search for skills"));
-        System.out.println();
-        Console.log("  " + Console.dim("$") + " skills update               " + Console.dim("Update installed skills"));
-        System.out.println();
-        Console.log("  " + Console.dim("$") + " skills init " + Console.dim("<name>") + "          " + Console.dim("Create a new skill"));
-        System.out.println();
+        Console.log("");
+        bannerLine("skills add " + Console.dim("<package>"), "Add a new skill");
+        bannerLine("skills remove",                          "Remove installed skills");
+        bannerLine("skills list",                            "List installed skills");
+        bannerLine("skills find " + Console.dim("[query]"),  "Search for skills");
+        Console.log("");
+        bannerLine("skills update",                          "Update installed skills");
+        Console.log("");
+        bannerLine("skills init " + Console.dim("<name>"),   "Create a new skill");
+        Console.log("");
         Console.log(Console.dim("https://skills.sh"));
-        System.out.println();
+        Console.log("");
         return 0;
+    }
+
+    private static void bannerLine(String cmd, String desc) {
+        // Pad command to 32 chars for alignment (strip ANSI for length calc)
+        String plain = cmd.replaceAll("\u001B\\[[0-9;]*m", "");
+        String padding = " ".repeat(Math.max(1, 32 - plain.length()));
+        Console.log("  " + Console.dim("$") + " " + cmd + padding + Console.dim(desc));
     }
 }

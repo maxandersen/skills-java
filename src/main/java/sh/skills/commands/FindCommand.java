@@ -37,11 +37,11 @@ public class FindCommand implements Callable<Integer> {
     public static String formatInstalls(int count) {
         if (count <= 0) return "";
         if (count >= 1_000_000) {
-            String val = String.format("%.1f", count / 1_000_000.0).replaceAll("\\.0$", "");
+            String val = String.format(Locale.US, "%.1f", count / 1_000_000.0).replaceAll("\\.0$", "");
             return val + "M installs";
         }
         if (count >= 1_000) {
-            String val = String.format("%.1f", count / 1_000.0).replaceAll("\\.0$", "");
+            String val = String.format(Locale.US, "%.1f", count / 1_000.0).replaceAll("\\.0$", "");
             return val + "K installs";
         }
         return count + (count == 1 ? " install" : " installs");
@@ -53,7 +53,7 @@ public class FindCommand implements Callable<Integer> {
     @Option(names = {"--json"}, description = "Output as JSON")
     private boolean json;
 
-    @Option(names = {"-n", "--limit"}, description = "Maximum number of results (default: 10)", defaultValue = "10")
+    @Option(names = {"-n", "--limit"}, description = "Maximum number of results (default: 6)", defaultValue = "6")
     private int limit;
 
     @Override
@@ -68,7 +68,7 @@ public class FindCommand implements Callable<Integer> {
 
     private int execute() throws Exception {
         Console.showLogo();
-        System.out.println();
+        Console.log("");
         String query = queryWords.isEmpty() ? null : String.join(" ", queryWords);
         String url = SKILLS_API;
         if (query != null && !query.isEmpty()) {
@@ -124,12 +124,12 @@ public class FindCommand implements Callable<Integer> {
         }
 
         Console.log(Console.dim("Install with") + " skills add <owner/repo@skill>");
-        System.out.println();
+        Console.log("");
 
         // Show up to 6 results in non-interactive mode (matching upstream)
         int shown = 0;
         for (JsonNode skill : skills) {
-            if (shown >= 6) break;
+            if (shown >= limit) break;
             String name = skill.path("name").asText("unknown");
             String slug = skill.path("id").asText(skill.path("slug").asText(""));
             String source = skill.path("source").asText("");
@@ -144,7 +144,7 @@ public class FindCommand implements Callable<Integer> {
             if (!slug.isEmpty()) {
                 Console.log(Console.dim("\u2514 " + SKILLS_BASE + "/" + slug));
             }
-            System.out.println();
+            Console.log("");
             shown++;
         }
         return 0;

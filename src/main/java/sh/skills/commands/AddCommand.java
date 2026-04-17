@@ -112,7 +112,9 @@ public class AddCommand implements Callable<Integer> {
         ParsedSource parsedSource = null;
         try {
             parsedSource = SourceParser.parseSource(source);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            Console.log(Console.dim("Source parsing note: " + e.getMessage()));
+        }
 
         // Preserve SSH URLs in lock files (upstream #588)
         String lockSource = source;

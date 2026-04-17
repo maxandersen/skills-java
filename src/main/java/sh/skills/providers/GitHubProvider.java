@@ -1,5 +1,7 @@
 package sh.skills.providers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import sh.skills.model.Skill;
 import sh.skills.util.GitUtils;
 
@@ -100,16 +102,9 @@ public class GitHubProvider implements HostProvider {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                // Extract sha from the response
-                String body = response.body();
-                int shaIdx = body.indexOf("\"sha\":");
-                if (shaIdx >= 0) {
-                    int start = body.indexOf('"', shaIdx + 6) + 1;
-                    int end = body.indexOf('"', start);
-                    if (start > 0 && end > start) {
-                        return body.substring(start, end);
-                    }
-                }
+                JsonNode node = new ObjectMapper().readTree(response.body());
+                String sha = node.path("sha").asText(null);
+                if (sha != null) return sha;
             }
         } catch (Exception e) {
             // Return null if we can't get the hash (non-fatal)
@@ -142,13 +137,17 @@ public class GitHubProvider implements HostProvider {
         return new ParsedGitHubSource(source.substring(0, slash), source.substring(slash + 1), null, null);
     }
 
-    /** Strip #fragment from source before parsing (upstream #814) */
+    /** Strip #fragment and @skill suffix from source before parsing (upstream #814) */
     private static String stripFragment(String source) {
         int hash = source.indexOf('#');
         String stripped = hash >= 0 ? source.substring(0, hash) : source;
-        // Also strip @skill suffix (used by find output: owner/repo@skill)
-        int at = stripped.indexOf('@');
-        return at >= 0 ? stripped.substring(0, at) : stripped;
+        // Strip @skill suffix only for shorthand patterns (owner/repo@skill)
+        // Don't strip @ from URLs (git@..., https://user@host/...)
+        if (!stripped.contains(":") && !stripped.startsWith(".") && !stripped.startsWith("/")) {
+            int at = stripped.indexOf('@');
+            if (at >= 0) stripped = stripped.substring(0, at);
+        }
+        return stripped;
     }
 
     private void copyDirectory(Path source, Path target) throws IOException {
