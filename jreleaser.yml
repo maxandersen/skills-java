@@ -9,6 +9,7 @@ project:
   license: MIT
   links:
     homepage: https://github.com/jbangdev/skills-java
+    documentation: https://github.com/jbangdev/skills-java#readme
   languages:
     java:
       groupId: sh.skills

@@ -1,6 +1,13 @@
 project:
   name: skills
   description: The CLI for the open agent skills ecosystem (Java port)
+  authors:
+    - Max Rydahl Andersen
+  license: MIT
+  links:
+    homepage: https://github.com/jbangdev/skills-java
+    documentation: https://github.com/jbangdev/skills-java#readme
+  inceptionYear: "2025"
   languages:
     java:
       groupId: sh.skills
