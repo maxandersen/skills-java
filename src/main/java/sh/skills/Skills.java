@@ -70,8 +70,22 @@ public class Skills implements Callable<Integer> {
 
     @Override
     public Integer call() {
-        // No subcommand: show help
-        new CommandLine(this).usage(System.out);
+        // No subcommand: show banner + usage hints (matching upstream showBanner)
+        Console.showLogo();
+        System.out.println();
+        Console.log(Console.dim("The open agent skills ecosystem"));
+        System.out.println();
+        Console.log("  " + Console.dim("$") + " skills add " + Console.dim("<package>") + "        " + Console.dim("Add a new skill"));
+        Console.log("  " + Console.dim("$") + " skills remove               " + Console.dim("Remove installed skills"));
+        Console.log("  " + Console.dim("$") + " skills list                 " + Console.dim("List installed skills"));
+        Console.log("  " + Console.dim("$") + " skills find " + Console.dim("[query]") + "         " + Console.dim("Search for skills"));
+        System.out.println();
+        Console.log("  " + Console.dim("$") + " skills update               " + Console.dim("Update installed skills"));
+        System.out.println();
+        Console.log("  " + Console.dim("$") + " skills init " + Console.dim("<name>") + "          " + Console.dim("Create a new skill"));
+        System.out.println();
+        Console.log(Console.dim("https://skills.sh"));
+        System.out.println();
         return 0;
     }
 }
