@@ -61,6 +61,13 @@
             <version>${jgit.version}</version>
         </dependency>
 
+        <!-- Silence JGit SLF4J warnings -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>2.0.12</version>
+        </dependency>
+
         <!-- Terminal UI for interactive find -->
         <dependency>
             <groupId>dev.tamboui</groupId>

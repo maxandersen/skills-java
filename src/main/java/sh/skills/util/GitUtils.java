@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +64,19 @@ public class GitUtils {
                     new org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider("x-access-token", token)
                 );
             }
+
+            cmd.setProgressMonitor(new ProgressMonitor() {
+                private String task = "";
+                @Override public void start(int totalTasks) {}
+                @Override public void beginTask(String title, int totalWork) {
+                    task = title;
+                    Console.log(Console.dim("  " + title + "..."));
+                }
+                @Override public void update(int completed) {}
+                @Override public void endTask() {}
+                @Override public boolean isCancelled() { return false; }
+                @Override public void showDuration(boolean enabled) {}
+            });
 
             try (Git git = cmd.call()) {
                 // Clone successful
