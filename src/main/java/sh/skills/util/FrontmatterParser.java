@@ -4,6 +4,7 @@ import org.yaml.snakeyaml.Yaml;
 import sh.skills.model.Skill;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,6 +19,57 @@ import java.util.Map;
 public class FrontmatterParser {
 
     private static final String DELIMITER = "---";
+
+    /**
+     * Result of raw frontmatter parsing.
+     */
+    public record FrontmatterResult(Map<String, String> data, String content) {}
+
+    /**
+     * Parse raw frontmatter from content. Returns data map and remaining content.
+     * Used by blob downloader to extract name/description without creating a Skill.
+     */
+    public static FrontmatterResult parseFrontmatter(String content) {
+        if (content == null || !content.startsWith(DELIMITER)) {
+            return new FrontmatterResult(Map.of(), content != null ? content : "");
+        }
+
+        int start = DELIMITER.length();
+        if (start < content.length() && content.charAt(start) == '\n') start++;
+        else if (start < content.length() && content.charAt(start) == '\r') {
+            start++;
+            if (start < content.length() && content.charAt(start) == '\n') start++;
+        }
+
+        int end = content.indexOf('\n' + DELIMITER, start);
+        if (end == -1) {
+            end = content.indexOf(DELIMITER, start);
+            if (end == -1) return new FrontmatterResult(Map.of(), content);
+        }
+
+        String yamlSection = content.substring(start, end);
+        String markdownContent = content.substring(end + DELIMITER.length() + 1).stripLeading();
+
+        Yaml yaml = new Yaml();
+        Object parsed;
+        try {
+            parsed = yaml.load(yamlSection);
+        } catch (Exception e) {
+            return new FrontmatterResult(Map.of(), content);
+        }
+
+        if (!(parsed instanceof Map)) return new FrontmatterResult(Map.of(), markdownContent);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> frontmatter = (Map<String, Object>) parsed;
+        Map<String, String> data = new HashMap<>();
+        for (Map.Entry<String, Object> entry : frontmatter.entrySet()) {
+            if (entry.getValue() != null) {
+                data.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+        return new FrontmatterResult(data, markdownContent);
+    }
 
     /**
      * Parse a SKILL.md file content into a Skill object.
