@@ -3,6 +3,7 @@ package sh.skills.providers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sh.skills.model.Skill;
+import sh.skills.util.Console;
 import sh.skills.util.GitUtils;
 
 import java.io.IOException;
@@ -49,6 +50,22 @@ public class GitHubProvider implements HostProvider {
     @Override
     public List<Skill> fetchSkills(String source, Path tempDir) throws ProviderException {
         ParsedGitHubSource parsed = parse(source);
+
+        // Resolve redirects and check repo metadata before cloning
+        RepoInfo info = resolveRepo(parsed.owner, parsed.repo);
+        if (info != null) {
+            // Check for openclaw redirect
+            if (info.owner.equalsIgnoreCase("openclaw")) {
+                throw new ProviderException(
+                    "This repository redirects to openclaw/" + info.repo + ". "
+                    + "openclaw skills are blocked due to duplicate and malicious content.");
+            }
+            // Warn if repo is very large (>100MB)
+            if (info.sizeKB > 100_000) {
+                Console.warn("Repository is large (" + (info.sizeKB / 1024) + "MB). Clone may be slow.");
+            }
+        }
+
         String url = "https://github.com/" + parsed.owner + "/" + parsed.repo + ".git";
 
         try {
@@ -166,6 +183,40 @@ public class GitHubProvider implements HostProvider {
             }
         });
     }
+
+    /**
+     * Resolve a GitHub repo via API to detect redirects and get metadata.
+     * Returns null if API call fails (non-blocking).
+     */
+    private RepoInfo resolveRepo(String owner, String repo) {
+        try {
+            var client = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.NORMAL)
+                    .connectTimeout(java.time.Duration.ofSeconds(5))
+                    .build();
+            var reqBuilder = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://api.github.com/repos/" + owner + "/" + repo))
+                    .header("Accept", "application/json")
+                    .timeout(java.time.Duration.ofSeconds(5));
+            String token = System.getenv("GITHUB_TOKEN");
+            if (token != null && !token.isEmpty()) {
+                reqBuilder.header("Authorization", "Bearer " + token);
+            }
+            var resp = client.send(reqBuilder.build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() != 200) return null;
+            var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            var node = mapper.readTree(resp.body());
+            String fullName = node.path("full_name").asText("");
+            String[] parts = fullName.split("/");
+            if (parts.length != 2) return null;
+            return new RepoInfo(parts[0], parts[1], node.path("size").asInt(0));
+        } catch (Exception e) {
+            return null; // Non-blocking: proceed with clone if API fails
+        }
+    }
+
+    private record RepoInfo(String owner, String repo, int sizeKB) {}
 
     public static class ParsedGitHubSource {
         public final String owner;
