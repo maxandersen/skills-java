@@ -29,8 +29,8 @@ public class FindCommand implements Callable<Integer> {
 
     private static final String SKILLS_API = "https://skills.sh/api/search";
 
-    @Parameters(index = "0", arity = "0..1", description = "Search query")
-    private String query;
+    @Parameters(arity = "0..*", description = "Search query")
+    private List<String> queryWords = new ArrayList<>();
 
     @Option(names = {"--json"}, description = "Output as JSON")
     private boolean json;
@@ -49,6 +49,7 @@ public class FindCommand implements Callable<Integer> {
     }
 
     private int execute() throws Exception {
+        String query = queryWords.isEmpty() ? null : String.join(" ", queryWords);
         String url = SKILLS_API;
         if (query != null && !query.isEmpty()) {
             url += "?q=" + java.net.URLEncoder.encode(query, "UTF-8");
