@@ -75,6 +75,7 @@ public class BlobDownloader {
 
         HttpClient client = HttpClient.newBuilder()
             .connectTimeout(FETCH_TIMEOUT)
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
         for (String branch : branches) {
@@ -291,6 +292,7 @@ public class BlobDownloader {
         // 4. Fetch SKILL.md content from raw.githubusercontent.com
         HttpClient client = HttpClient.newBuilder()
             .connectTimeout(FETCH_TIMEOUT)
+            .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
         List<ParsedSkillInfo> parsedSkills = new ArrayList<>();
