@@ -2,6 +2,7 @@ package sh.skills.blob;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sh.skills.util.Console;
 import sh.skills.util.FrontmatterParser;
 import sh.skills.model.Skill;
 
@@ -267,11 +268,17 @@ public class BlobDownloader {
     public static BlobInstallResult tryBlobInstall(String ownerRepo, BlobInstallOptions options) {
         // 1. Fetch the full repo tree
         RepoTree tree = fetchRepoTree(ownerRepo, options.ref(), options.token());
-        if (tree == null) return null;
+        if (tree == null) {
+            Console.log(Console.dim("  Could not fetch repo tree"));
+            return null;
+        }
 
         // 2. Discover SKILL.md paths in the tree
         List<String> skillMdPaths = new ArrayList<>(findSkillMdPaths(tree, options.subpath()));
-        if (skillMdPaths.isEmpty()) return null;
+        if (skillMdPaths.isEmpty()) {
+            Console.log(Console.dim("  No SKILL.md files found in tree"));
+            return null;
+        }
 
         // 3. If skill filter is set, narrow down by folder name
         if (options.skillFilter() != null) {
@@ -295,26 +302,30 @@ public class BlobDownloader {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-        List<ParsedSkillInfo> parsedSkills = new ArrayList<>();
-        for (String mdPath : skillMdPaths) {
-            String content = fetchSkillMdContent(client, ownerRepo, tree.branch(), mdPath);
-            if (content == null) continue;
+        // Fetch SKILL.md content in parallel
+        List<CompletableFuture<ParsedSkillInfo>> futures = skillMdPaths.stream()
+            .map(mdPath -> CompletableFuture.supplyAsync(() -> {
+                String content = fetchSkillMdContent(client, ownerRepo, tree.branch(), mdPath);
+                if (content == null) return null;
 
-            FrontmatterParser.FrontmatterResult fm = FrontmatterParser.parseFrontmatter(content);
-            String name = fm.data().get("name");
-            String description = fm.data().get("description");
-            if (name == null || description == null) continue;
+                FrontmatterParser.FrontmatterResult fm = FrontmatterParser.parseFrontmatter(content);
+                String name = fm.data().get("name");
+                String description = fm.data().get("description");
+                if (name == null || description == null) return null;
 
-            // Skip internal skills unless requested
-            if (!options.includeInternal()) {
-                Object metadata = fm.data().get("metadata");
-                // Simple check - internal flag in metadata
-            }
+                return new ParsedSkillInfo(mdPath, name, description, content, toSkillSlug(name));
+            }))
+            .toList();
 
-            parsedSkills.add(new ParsedSkillInfo(mdPath, name, description, content, toSkillSlug(name)));
+        List<ParsedSkillInfo> parsedSkills = futures.stream()
+            .map(CompletableFuture::join)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        if (parsedSkills.isEmpty()) {
+            Console.log(Console.dim("  No valid skills found in SKILL.md files"));
+            return null;
         }
-
-        if (parsedSkills.isEmpty()) return null;
 
         // Apply skill filter by name
         if (options.skillFilter() != null) {
@@ -325,7 +336,10 @@ public class BlobDownloader {
             if (!nameFiltered.isEmpty()) {
                 parsedSkills = new ArrayList<>(nameFiltered);
             }
-            if (parsedSkills.isEmpty()) return null;
+            if (parsedSkills.isEmpty()) {
+                Console.log(Console.dim("  No skills matched filter: " + options.skillFilter()));
+                return null;
+            }
         }
 
         // 5. Fetch full snapshots from skills.sh download API
@@ -336,6 +350,7 @@ public class BlobDownloader {
             SkillDownloadResponse download = fetchSkillDownload(client, source, skill.slug());
             if (download == null) {
                 // If ANY download failed, fall back to clone
+                Console.log(Console.dim("  Download API unavailable for: " + skill.name()));
                 return null;
             }
 

@@ -139,9 +139,14 @@ public class AddCommand implements Callable<Integer> {
             String ownerRepo = SourceParser.getOwnerRepo(parsedSource);
             if (ownerRepo != null) {
                 String token = System.getenv("GITHUB_TOKEN");
+                // Use --skill filter for blob download if no @skill in source
+                String blobSkillFilter = parsedSource.getSkillFilter();
+                if (blobSkillFilter == null && skillNames.size() == 1) {
+                    blobSkillFilter = skillNames.get(0);
+                }
                 blobResult = BlobDownloader.tryBlobInstall(ownerRepo, new BlobInstallOptions(
                     parsedSource.getSubpath(),
-                    parsedSource.getSkillFilter(),
+                    blobSkillFilter,
                     parsedSource.getRef(),
                     token,
                     !skillNames.isEmpty()
