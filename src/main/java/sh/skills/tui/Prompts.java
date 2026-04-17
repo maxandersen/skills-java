@@ -31,6 +31,34 @@ public final class Prompts {
 
     private Prompts() {}
 
+    // ─── Confirm (yes/no) ───
+
+    /**
+     * Show a yes/no confirmation prompt. Returns true for yes, false for no, null if cancelled.
+     */
+    public static Boolean confirm(String message, boolean defaultYes) {
+        return select(message, List.of(
+            new SelectOption<>(true, "Yes"),
+            new SelectOption<>(false, "No")
+        ));
+    }
+
+    // ─── Text input ───
+
+    /**
+     * Show a single-line text input prompt. Returns input or null if cancelled.
+     */
+    public static String promptText(String message, String placeholder) {
+        if (!isTTY()) return null;
+        var app = new TextPromptApp(message, placeholder);
+        try {
+            app.run();
+        } catch (Exception e) {
+            return null;
+        }
+        return app.getResult();
+    }
+
     // ─── Select (single choice) ───
 
     public static <T> T select(String message, List<SelectOption<T>> options) {
@@ -361,5 +389,59 @@ public final class Prompts {
         }
 
         T getResult() { return result; }
+    }
+
+    // ─── Text Prompt App ───
+
+    private static class TextPromptApp extends InlineApp {
+        private final String message;
+        private final TextInputState inputState = new TextInputState();
+        private String result;
+        private boolean cancelled;
+
+        TextPromptApp(String message, String placeholder) {
+            this.message = message;
+        }
+
+        @Override protected int height() { return 3; }
+
+        @Override
+        protected InlineTuiConfig configure(int height) {
+            return InlineTuiConfig.builder(height)
+                    .tickRate(Duration.ofMillis(100))
+                    .clearOnClose(true)
+                    .build();
+        }
+
+        @Override
+        protected Element render() {
+            return column(
+                row(
+                    text("◆ ").fg(CYAN).fit(),
+                    text(message).bold().fit()
+                ).flex(Flex.START),
+                row(
+                    text("  ").fit(),
+                    textInput(inputState).constraint(Constraint.fill(1))
+                ).flex(Flex.START),
+                text("enter confirm · esc cancel").fg(DIM)
+            ).focusable().onKeyEvent(this::handleKey);
+        }
+
+        private EventResult handleKey(KeyEvent event) {
+            if (event.code() == KeyCode.ESCAPE || event.isCtrlC()) {
+                cancelled = true;
+                quit();
+                return EventResult.HANDLED;
+            }
+            if (event.isConfirm() && !inputState.text().isEmpty()) {
+                result = inputState.text();
+                quit();
+                return EventResult.HANDLED;
+            }
+            return EventResult.UNHANDLED;
+        }
+
+        String getResult() { return cancelled ? null : result; }
     }
 }

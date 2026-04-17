@@ -7,6 +7,7 @@ import sh.skills.agents.AgentRegistry;
 import sh.skills.lock.LocalLock;
 import sh.skills.lock.SkillLock;
 import sh.skills.model.AgentConfig;
+import sh.skills.tui.Prompts;
 import sh.skills.util.Console;
 
 import java.io.IOException;
@@ -86,10 +87,9 @@ public class RemoveCommand implements Callable<Integer> {
                 }
 
                 if (!yes && !all) {
-                    Console.print("Remove " + Console.bold(skillName) + " from " + agent.getDisplayName() + "? [y/N] ");
-                    Scanner scanner = new Scanner(System.in);
-                    String answer = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
-                    if (!answer.equalsIgnoreCase("y") && !answer.equalsIgnoreCase("yes")) {
+                    Boolean confirmed = Prompts.confirm(
+                        "Remove " + skillName + " from " + agent.getDisplayName() + "?", false);
+                    if (confirmed == null || !confirmed) {
                         continue;
                     }
                 }

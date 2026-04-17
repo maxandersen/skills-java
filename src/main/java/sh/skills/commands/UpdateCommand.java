@@ -11,6 +11,8 @@ import sh.skills.model.Skill;
 import sh.skills.model.SkillLockEntry;
 import sh.skills.providers.HostProvider;
 import sh.skills.providers.ProviderRegistry;
+import sh.skills.tui.Prompts;
+import sh.skills.tui.Prompts.SelectOption;
 import sh.skills.util.Console;
 import sh.skills.util.PathUtils;
 import sh.skills.util.UpdateSource;
@@ -150,18 +152,12 @@ public class UpdateCommand implements Callable<Integer> {
     }
 
     private String promptScope() {
-        Console.log("Update scope:");
-        Console.log("  1) Project - Update skills in current directory");
-        Console.log("  2) Global  - Update skills in home directory");
-        Console.log("  3) Both    - Update all skills");
-        Console.print("Selection [1]: ");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
-        return switch (input) {
-            case "2" -> "global";
-            case "3" -> "both";
-            default -> "project";
-        };
+        String result = Prompts.select("Update scope", List.of(
+            new SelectOption<>("project", "Project", "Update skills in current directory"),
+            new SelectOption<>("global", "Global", "Update skills in home directory"),
+            new SelectOption<>("both", "Both", "Update all skills")
+        ));
+        return result != null ? result : "project";
     }
 
     // ── Global skills update ──

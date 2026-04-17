@@ -3,6 +3,7 @@ package sh.skills.commands;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
+import sh.skills.tui.Prompts;
 import sh.skills.util.Console;
 import sh.skills.util.PathUtils;
 
@@ -44,9 +45,8 @@ public class InitCommand implements Callable<Integer> {
     private int execute() throws IOException {
         // Prompt for name if not provided
         if (name == null || name.isEmpty()) {
-            Console.print("Skill name (kebab-case): ");
-            java.util.Scanner scanner = new java.util.Scanner(System.in);
-            name = scanner.hasNextLine() ? scanner.nextLine().trim() : "";
+            name = Prompts.promptText("Skill name (kebab-case)", "my-skill");
+            if (name == null) name = "";
         }
 
         if (name.isEmpty()) {
