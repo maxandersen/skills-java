@@ -13,6 +13,8 @@ public class SkillLockEntry {
     private String source;
     private String sourceType;
     private String sourceUrl;
+    /** Branch or tag ref used for installation (upstream #814) */
+    private String ref;
     private String skillPath;
     private String skillFolderHash;
     private String installedAt;
@@ -22,9 +24,15 @@ public class SkillLockEntry {
 
     public SkillLockEntry(String source, String sourceType, String sourceUrl,
                           String skillPath, String skillFolderHash) {
+        this(source, sourceType, sourceUrl, null, skillPath, skillFolderHash);
+    }
+
+    public SkillLockEntry(String source, String sourceType, String sourceUrl,
+                          String ref, String skillPath, String skillFolderHash) {
         this.source = source;
         this.sourceType = sourceType;
         this.sourceUrl = sourceUrl;
+        this.ref = ref;
         this.skillPath = skillPath;
         this.skillFolderHash = skillFolderHash;
         this.installedAt = java.time.Instant.now().toString();
@@ -39,6 +47,9 @@ public class SkillLockEntry {
 
     public String getSourceUrl() { return sourceUrl; }
     public void setSourceUrl(String sourceUrl) { this.sourceUrl = sourceUrl; }
+
+    public String getRef() { return ref; }
+    public void setRef(String ref) { this.ref = ref; }
 
     public String getSkillPath() { return skillPath; }
     public void setSkillPath(String skillPath) { this.skillPath = skillPath; }

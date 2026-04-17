@@ -52,6 +52,42 @@
       "description": "Well-known HTTPS URL",
       "source": "https://example.com/.well-known/skills/",
       "expectedProvider": "wellknown"
+    },
+    {
+      "description": "GitHub shorthand with branch ref",
+      "source": "vercel-labs/agent-skills#develop",
+      "expectedProvider": "github",
+      "expectedOwner": "vercel-labs",
+      "expectedRepo": "agent-skills",
+      "expectedBranch": null,
+      "expectedPath": null,
+      "expectedRef": "develop"
+    },
+    {
+      "description": "GitHub URL with branch ref fragment",
+      "source": "https://github.com/owner/repo#feature-branch",
+      "expectedProvider": "github",
+      "expectedOwner": "owner",
+      "expectedRepo": "repo",
+      "expectedBranch": null,
+      "expectedPath": null,
+      "expectedRef": "feature-branch"
+    },
+    {
+      "description": "GitHub shorthand with ref and skill filter",
+      "source": "owner/repo#main@my-skill",
+      "expectedProvider": "github",
+      "expectedOwner": "owner",
+      "expectedRepo": "repo",
+      "expectedBranch": null,
+      "exp": null,
+      "expectedRef": "main",
+      "expectedSkillFilter": "my-skill"
+    },
+    {
+      "description": "Well-known URL fragment is NOT treated as ref",
+      "source": "https://example.com/.well-known/skills/#section",
+      "expectedProvider": "wellknown"
     }
   ]
 }

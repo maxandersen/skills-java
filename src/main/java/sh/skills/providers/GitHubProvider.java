@@ -35,7 +35,7 @@ public class GitHubProvider implements HostProvider {
     @Override
     public boolean matches(String source) {
         if (source == null) return false;
-        String trimmed = source.trim();
+        String trimmed = stripFragment(source.trim());
         // Exclude local paths that start with ./ or ../
         if (trimmed.startsWith("./") || trimmed.startsWith("../")) {
             return false;
@@ -127,7 +127,7 @@ public class GitHubProvider implements HostProvider {
     public String getSourceType() { return "github"; }
 
     public ParsedGitHubSource parse(String source) {
-        source = source.trim();
+        source = stripFragment(source.trim());
         Matcher urlMatcher = GITHUB_URL.matcher(source);
         if (urlMatcher.matches()) {
             return new ParsedGitHubSource(
@@ -140,6 +140,12 @@ public class GitHubProvider implements HostProvider {
         // Shorthand owner/repo
         int slash = source.indexOf('/');
         return new ParsedGitHubSource(source.substring(0, slash), source.substring(slash + 1), null, null);
+    }
+
+    /** Strip #fragment from source before parsing (upstream #814) */
+    private static String stripFragment(String source) {
+        int hash = source.indexOf('#');
+        return hash >= 0 ? source.substring(0, hash) : source;
     }
 
     private void copyDirectory(Path source, Path target) throws IOException {
