@@ -145,7 +145,10 @@ public class GitHubProvider implements HostProvider {
     /** Strip #fragment from source before parsing (upstream #814) */
     private static String stripFragment(String source) {
         int hash = source.indexOf('#');
-        return hash >= 0 ? source.substring(0, hash) : source;
+        String stripped = hash >= 0 ? source.substring(0, hash) : source;
+        // Also strip @skill suffix (used by find output: owner/repo@skill)
+        int at = stripped.indexOf('@');
+        return at >= 0 ? stripped.substring(0, at) : stripped;
     }
 
     private void copyDirectory(Path source, Path target) throws IOException {
