@@ -9,6 +9,7 @@ project:
       version: 25
   snapshot:
     label: early-access
+    fullChangelog: true
 
 release:
   github:
@@ -19,10 +20,6 @@ release:
       enabled: true
       sections:
         - ASSETS
-    tagName: early-access
-    releaseName: Early Access
-    prerelease:
-      enabled: true
     changelog:
       formatted: ALWAYS
       preset: conventional-commits
@@ -36,4 +33,4 @@ distributions:
   skills:
     type: SINGLE_JAR
     artifacts:
-      - path: target/jskills-early-access.jar
+      - path: target/jskills-0.0.0-SNAPSHOT.jar

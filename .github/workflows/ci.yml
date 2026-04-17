@@ -59,7 +59,7 @@ jobs:
           cache: maven
 
       - name: Set version
-        run: mvn --no-transfer-progress versions:set -DnewVersion=early-access
+        run: mvn --no-transfer-progress versions:set -DnewVersion=0.0.0-SNAPSHOT
 
       - name: Build
         run: mvn --no-transfer-progress package -DskipTests
@@ -70,7 +70,7 @@ jobs:
           version: latest
           arguments: full-release -c jreleaser-early-access.yml
         env:
-          JRELEASER_PROJECT_VERSION: early-access
+          JRELEASER_PROJECT_VERSION: 0.0.0-SNAPSHOT
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: JReleaser output
