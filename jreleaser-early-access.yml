@@ -1,13 +1,13 @@
 project:
   name: skills
   description: The CLI for the open agent skills ecosystem (Java port)
-  java:
-    groupId: sh.skills
-    artifactId: jskills
-    mainClass: sh.skills.Skills
-    version: 25
+  languages:
+    java:
+      groupId: sh.skills
+      artifactId: jskills
+      mainClass: sh.skills.Skills
+      version: 25
   snapshot:
-    enabled: true
     label: early-access
 
 release:

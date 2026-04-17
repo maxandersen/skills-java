@@ -9,11 +9,12 @@ project:
   license: MIT
   links:
     homepage: https://github.com/jbangdev/skills-java
-  java:
-    groupId: sh.skills
-    artifactId: jskills
-    mainClass: sh.skills.Skills
-    version: 25
+  languages:
+    java:
+      groupId: sh.skills
+      artifactId: jskills
+      mainClass: sh.skills.Skills
+      version: 25
   inceptionYear: "2025"
 
 
