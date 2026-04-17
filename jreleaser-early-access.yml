@@ -1,20 +1,11 @@
 project:
   name: skills
   description: The CLI for the open agent skills ecosystem (Java port)
-  longDescription: |
-    Java port of vercel-labs/skills CLI.
-    Install, manage, and discover agent skills for coding assistants.
-  authors:
-    - Max Rydahl Andersen
-  license: MIT
-  links:
-    homepage: https://github.com/jbangdev/skills-java
   java:
     groupId: sh.skills
     artifactId: jskills
     mainClass: sh.skills.Skills
     version: 17
-  inceptionYear: "2025"
   versionPattern: CALVER
 
 release:
@@ -22,8 +13,14 @@ release:
     owner: jbangdev
     name: skills-java
     overwrite: true
-    tagName: "v{{projectVersion}}"
-    releaseName: "v{{projectVersion}}"
+    update:
+      enabled: true
+      sections:
+        - ASSETS
+    tagName: early-access
+    releaseName: Early Access
+    prerelease:
+      enabled: true
     changelog:
       formatted: ALWAYS
       preset: conventional-commits
@@ -37,4 +34,4 @@ distributions:
   skills:
     type: SINGLE_JAR
     artifacts:
-      - path: target/jskills-{{projectVersion}}.jar
+      - path: target/jskills-early-access.jar
