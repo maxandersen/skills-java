@@ -2,59 +2,69 @@
 
 **The CLI for the open agent skills ecosystem** — Java port of [vercel-labs/skills](https://github.com/vercel-labs/skills).
 
-Run it with zero Node.js/npm required, using just Java 17+ via [JBang](https://jbang.dev).
+Run it with zero Node.js/npm required, using just Java 25+ via [JBang](https://jbang.dev).
 
 ## Quick Start
 
 ```bash
-# Install via JBang (no setup needed)
-jbang skills@maxandersen/jskills add vercel-labs/agent-skills
+# Install the 'skills' command (one-time)
+jbang app install skills@maxandersen/skills-java
 
-# Or install JBang first: https://www.jbang.dev/download/
+# Now use 'skills' directly
+skills find web design
+skills add vercel-labs/agent-skills
+skills list
 ```
+
+> Don't have JBang? Install it from [jbang.dev/download](https://www.jbang.dev/download/).
+> Or run without installing: `jbang skills@maxandersen/skills-java <command>`
 
 ## Usage
 
 ```bash
+# Search for skills (interactive fzf-style when no query)
+skills find
+skills find web design
+
 # Add skills from a GitHub repo
-jbang skills@maxandersen/jskills add vercel-labs/agent-skills
+skills add vercel-labs/agent-skills
+
+# Add a specific skill
+skills add vercel-labs/agent-skills --skill web-design-guidelines
 
 # Add to specific agents
-jbang skills@maxandersen/jskills add vercel-labs/agent-skills -a claude-code -a cursor
+skills add vercel-labs/agent-skills -a claude-code -a cursor
 
 # Non-interactive / CI-friendly
-jbang skills@maxandersen/jskills add vercel-labs/agent-skills --all -y
+skills add vercel-labs/agent-skills --all -y
 
 # List installed skills
-jbang skills@maxandersen/jskills list
-
-# Search for skills
-jbang skills@maxandersen/jskills find web design
+skills list
+skills list --json
 
 # Check for updates
-jbang skills@maxandersen/jskills check
+skills check
 
 # Update all installed skills
-jbang skills@maxandersen/jskills update
+skills update
 
 # Remove a skill
-jbang skills@maxandersen/jskills remove web-design
+skills remove web-design
 
 # Create a new skill template
-jbang skills@maxandersen/jskills init my-new-skill
+skills init my-new-skill
 ```
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `add <source>` | Install skills from GitHub, GitLab, or local path |
-| `list` (alias: `ls`) | List all installed skills |
-| `find [query]` | Search skills at skills.sh |
-| `check` | Check for skill updates |
-| `update` | Update installed skills |
-| `remove` (alias: `rm`) | Remove installed skills |
-| `init [name]` | Create a new SKILL.md template |
+| Command | Aliases | Description |
+|---------|---------|-------------|
+| `add <source>` | `install`, `a`, `i` | Install skills from GitHub, GitLab, or local path |
+| `find [query]` | `search`, `f`, `s` | Search skills at skills.sh |
+| `list` | `ls` | List all installed skills |
+| `update` | `check` | Update installed skills |
+| `remove <skill>` | `rm`, `r` | Remove installed skills |
+| `init [name]` | | Create a new SKILL.md template |
 
 ## Source Formats
 
@@ -62,10 +72,13 @@ jbang skills@maxandersen/jskills init my-new-skill
 # GitHub shorthand
 skills add owner/repo
 
+# Specific skill within a repo
+skills add owner/repo@skill-name
+
 # Full GitHub URL
 skills add https://github.com/owner/repo
 
-# Specific skill within a repo
+# Specific branch/path
 skills add https://github.com/owner/repo/tree/main/skills/web-design
 
 # GitLab
@@ -80,8 +93,8 @@ skills add ./my-local-skills
 
 ## Supported Agents
 
-All 40+ agents from the original are supported, including:
-Claude Code, Cursor, OpenCode, Cline, Codex, Continue, Gemini CLI, GitHub Copilot, Goose, OpenHands, Replit, Roo Code, Windsurf, and many more.
+All 45 agents from the upstream are supported, including:
+Claude Code, Cursor, OpenCode, Cline, Codex, Continue, Gemini CLI, GitHub Copilot, Goose, Kiro, OpenHands, Replit, Roo, Windsurf, and many more.
 
 ## Options
 
@@ -106,29 +119,20 @@ Claude Code, Cursor, OpenCode, Cline, Codex, Continue, Gemini CLI, GitHub Copilo
 
 ## Upstream Sync
 
-This project tracks [vercel-labs/skills](https://github.com/vercel-labs/skills) for updates. A weekly GitHub Action checks for upstream changes and opens an issue when updates are available.
+This project tracks [vercel-labs/skills](https://github.com/vercel-labs/skills) (currently synced to v1.5.1). A weekly GitHub Action checks for upstream changes and opens an issue when updates are available.
 
 The `upstream.lock` file records the last-synced commit SHA.
-
-## Shared Test Fixtures
-
-The `test-fixtures/` directory contains JSON test case files that are shared between this Java implementation and the original TypeScript implementation. This enables cross-implementation test parity.
-
-### Fixture Files
-
-- `skill-matching-cases.json` — Skill name matching/filtering logic
-- `source-parser-cases.json` — URL/source parsing for providers
-- `subpath-traversal-cases.json` — Path traversal security validation
-- `plugin-grouping-cases.json` — Plugin manifest parsing
 
 ## Building from Source
 
 ```bash
-git clone https://github.com/maxandersen/jskills
-cd jskills
+git clone https://github.com/maxandersen/skills-java
+cd skills-java
 mvn package
 java -jar target/jskills-*.jar --help
 ```
+
+Requires Java 25+.
 
 ## License
 
