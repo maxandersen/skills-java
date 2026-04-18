@@ -214,11 +214,105 @@
     }
     footer a { color: var(--dim); }
     footer a:hover { color: var(--fg); }
+
+    /* Nav bar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    nav .nav-brand {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--fg);
+    }
+    nav .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+    }
+    nav .nav-links a { color: var(--dim); }
+    nav .nav-links a:hover { color: var(--fg); text-decoration: none; }
+
+    /* Attribution banner */
+    .attribution {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 0 0 3rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--dim);
+      line-height: 1.7;
+    }
+    .attribution a { color: var(--accent); }
+
+    /* FAQ */
+    .faq {
+      margin: 0 0 3rem;
+    }
+    .faq h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .faq-list details {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 0;
+    }
+    .faq-list summary {
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--fg);
+      list-style: none;
+    }
+    .faq-list summary::-webkit-details-marker { display: none; }
+    .faq-list summary::before {
+      content: '▸ ';
+      color: var(--dim);
+      margin-right: 0.25rem;
+    }
+    .faq-list details[open] summary::before { content: '▾ '; }
+    .faq-list details[open] summary { border-bottom: 1px solid var(--card-border); }
+    .faq-list details p {
+      padding: 0.85rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--dim);
+      line-height: 1.7;
+    }
+    .faq-list details p a { color: var(--accent); }
+    .faq-list details p code {
+      background: var(--bg);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
+  <nav>
+    <span class="nav-brand">jskills</span>
+    <div class="nav-links">
+      <a href="#install">Install</a>
+      <a href="#commands">Docs</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/maxandersen/jskills" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </nav>
+
   <section class="hero">
     <div class="logo">     ██╗███████╗██╗  ██╗██╗██╗     ██╗     ███████╗
      ██║██╔════╝██║ ██╔╝██║██║     ██║     ██╔════╝
@@ -230,7 +324,13 @@
     <p>Install, manage, and discover skills for AI coding agents — no Node.js required.</p>
   </section>
 
-  <section class="install">
+  <section class="attribution">
+    Friendly Java port of <a href="https://skills.sh" target="_blank" rel="noopener">skills.sh</a>
+    by <a href="https://github.com/vercel-labs/skills" target="_blank" rel="noopener">vercel-labs/skills</a>.<br>
+    Same ecosystem, same skills, same registry — just runs on the JVM (or as a native binary).
+  </section>
+
+  <section class="install" id="install">
     <div class="install-card">
       <h3>☕ via JBang (any OS with Java 25+)</h3>
       <div class="code-block" data-copy="curl -Ls https://sh.jbang.dev | bash -s - app setup">
@@ -275,7 +375,7 @@
     </div>
   </section>
 
-  <section class="commands">
+  <section class="commands" id="commands">
     <h2>Commands</h2>
     <div class="cmd-grid">
       <div class="cmd">
@@ -320,6 +420,31 @@
           <span class="toast">Copied!</span>
         </div>
       </div>
+    </div>
+  </section>
+  <section class="faq" id="faq">
+    <h2>FAQ</h2>
+    <div class="faq-list">
+      <details>
+        <summary>How is this different from skills.sh?</summary>
+        <p>jskills is a Java port of the <a href="https://github.com/vercel-labs/skills">vercel-labs/skills</a> CLI. It uses the same registry, installs the same skills, and produces the same lock files. The difference is it runs on Java 25+ (via JBang) or as a standalone native binary — no Node.js or npm required.</p>
+      </details>
+      <details>
+        <summary>Are the skills compatible?</summary>
+        <p>Yes. Skills are agent-agnostic Markdown files hosted on GitHub. jskills reads and writes the same <code>skills.lock</code> format as the original CLI. You can switch between them freely.</p>
+      </details>
+      <details>
+        <summary>Which agents are supported?</summary>
+        <p>Claude Code, Codex, Gemini CLI, Copilot, Amp, and any agent that reads <code>.pi/skills</code>, <code>.claude/skills</code>, <code>.codex/skills</code>, <code>.gemini/skills</code>, or similar directories. Use <code>skills add &lt;source&gt; --agent &lt;name&gt;</code> to target a specific agent.</p>
+      </details>
+      <details>
+        <summary>Do I need Java installed?</summary>
+        <p>For the JBang install — yes, Java 25+. JBang can manage this for you. For native binaries, no — they are self-contained executables with no runtime dependencies.</p>
+      </details>
+      <details>
+        <summary>Where are skills stored?</summary>
+        <p>Project-scoped skills go in <code>.pi/skills/</code> (or the agent-specific directory) in your project root. Global skills go in <code>~/.pi/agent/skills/</code>. The lock file <code>skills.lock</code> tracks sources and versions.</p>
+      </details>
     </div>
   </section>
 </div>
