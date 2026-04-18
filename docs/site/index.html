@@ -19,7 +19,6 @@
       --accent2: #16a34a;
       --card-bg: #171717;
       --card-border: #262626;
-      --input-bg: #1c1c1c;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -82,32 +81,10 @@
       border-radius: 6px;
       overflow-x: auto;
       color: var(--fg);
-      position: relative;
     }
     .install-card pre .prompt { color: var(--dim); user-select: none; }
     .install-card pre .comment { color: var(--dim); }
     .install-card .note { font-size: 0.8rem; color: var(--dim); margin-top: 0.5rem; }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--card-border);
-      margin-bottom: 1.5rem;
-    }
-    .tab {
-      padding: 0.5rem 1.25rem;
-      background: none;
-      border: none;
-      color: var(--dim);
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-family: inherit;
-      border-bottom: 2px solid transparent;
-      transition: all 0.15s;
-    }
-    .tab:hover { color: var(--fg); }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
     /* Commands */
     .commands {
@@ -139,95 +116,44 @@
       margin-top: 0.25rem;
     }
 
-    /* Search / Find */
-    .find {
+    /* Explore */
+    .explore {
       margin: 0 0 3rem;
     }
-    .find h2 {
+    .explore h2 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
     }
-    .search-box {
-      display: flex;
-      align-items: center;
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 0 1rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.15s;
+    .explore-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
-    .search-box:focus-within { border-color: var(--accent); }
-    .search-icon { color: var(--dim); margin-right: 0.5rem; font-size: 1.1rem; }
-    .search-box input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      color: var(--fg);
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 0.75rem 0;
-    }
-    .search-box input::placeholder { color: #525252; }
-    .result-count {
-      font-size: 0.8rem;
-      color: var(--dim);
-      margin-bottom: 0.75rem;
-    }
-    .results {
-      display: flex;
-      flex-direction: column;
-      gap: 0.375rem;
-      max-height: 420px;
-      overflow-y: auto;
-    }
-    .results::-webkit-scrollbar { width: 6px; }
-    .results::-webkit-scrollbar-track { background: transparent; }
-    .results::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
-    .skill-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    @media (min-width: 640px) { .explore-cards { grid-template-columns: 1fr 1fr; } }
+    .explore-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
       transition: border-color 0.15s;
     }
-    .skill-row:hover { border-color: #404040; }
-    .skill-name {
-      font-size: 0.9rem;
-      font-weight: 500;
+    .explore-card:hover { border-color: #404040; text-decoration: none; }
+    .explore-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
     }
-    .skill-source {
-      font-size: 0.75rem;
+    .explore-card p {
       color: var(--dim);
+      font-size: 0.85rem;
     }
-    .skill-installs {
-      font-size: 0.75rem;
-      color: var(--dim);
-      white-space: nowrap;
-      margin-left: 1rem;
+    .explore-card pre {
+      background: var(--bg);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--fg);
     }
-    .loading {
-      text-align: center;
-      color: var(--dim);
-      padding: 2rem;
-      font-size: 0.9rem;
-    }
-    .loading .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--card-border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Footer */
     footer {
@@ -303,15 +229,18 @@
     </div>
   </section>
 
-  <section class="find">
+  <section class="explore">
     <h2>Explore skills</h2>
-    <div class="search-box">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="search" placeholder="Search skills…" autocomplete="off">
-    </div>
-    <div class="result-count" id="count"></div>
-    <div class="results" id="results">
-      <div class="loading"><span class="spinner"></span> Loading skills registry…</div>
+    <div class="explore-cards">
+      <a class="explore-card" href="https://skills.sh" target="_blank" rel="noopener">
+        <h3>🌐 Browse on skills.sh</h3>
+        <p>Search and explore the full skills registry in your browser.</p>
+      </a>
+      <div class="explore-card">
+        <h3>🔍 Search from the CLI</h3>
+        <p>Interactive fzf-style search with arrow keys, or pass a query directly.</p>
+        <pre><span style="color:#737373">$ </span>skills find web design</pre>
+      </div>
     </div>
   </section>
 </div>
@@ -323,65 +252,6 @@
     Built on the <a href="https://github.com/vercel-labs/skills">open agent skills ecosystem</a>
   </p>
 </footer>
-
-<script src="skills.js"></script>
-<script>
-(function() {
-  const searchInput = document.getElementById('search');
-  const resultsDiv = document.getElementById('results');
-  const countDiv = document.getElementById('count');
-  const allSkills = (typeof SKILLS !== 'undefined' ? SKILLS : []);
-
-  function formatNum(n) {
-    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return n.toString();
-  }
-
-  function render(skills) {
-    if (!skills.length) {
-      resultsDiv.innerHTML = '<div class="loading">No skills found</div>';
-      countDiv.textContent = '0 skills';
-      return;
-    }
-    countDiv.textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
-    const addCmd = s => `skills add ${s.s}@${s.n}`;
-    resultsDiv.innerHTML = skills.slice(0, 100).map(s => `
-      <div class="skill-row" title="${esc(addCmd(s))}">
-        <div>
-          <div class="skill-name">${esc(s.n)}</div>
-          <div class="skill-source">${esc(s.s)}</div>
-        </div>
-        <div class="skill-installs">${formatNum(s.i)} installs</div>
-      </div>
-    `).join('');
-    if (skills.length > 100) {
-      resultsDiv.innerHTML += `<div class="loading" style="padding:0.75rem">Showing top 100 of ${skills.length}</div>`;
-    }
-  }
-
-  function esc(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function filter(q) {
-    if (!q) return allSkills;
-    const terms = q.toLowerCase().split(/\s+/);
-    return allSkills.filter(s => {
-      const hay = (s.n + ' ' + s.s).toLowerCase();
-      return terms.every(t => hay.includes(t));
-    });
-  }
-
-  let debounce;
-  searchInput.addEventListener('input', () => {
-    clearTimeout(debounce);
-    debounce = setTimeout(() => render(filter(searchInput.value.trim())), 80);
-  });
-
-  // Show top skills on load
-  render(allSkills);
-})();
-</script>
 
 </body>
 </html>
