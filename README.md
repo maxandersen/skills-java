@@ -4,6 +4,8 @@
 
 Run it with zero Node.js/npm required, using just Java 25+ via [JBang](https://jbang.dev).
 
+> **🧪 Experiment:** This project is an experiment in how fast and far you can go using AI coding agents to port a utility from TypeScript to Java — and what you gain from it: managed dependencies via Maven, native binaries via GraalVM, and no Node.js runtime. The entire port was done through agent-assisted coding in a single extended session.
+
 ## Quick Start
 
 ```bash
