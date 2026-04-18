@@ -13,5 +13,15 @@
     "name": "org.eclipse.jgit.internal.storage.file.FileRepository",
     "allDeclaredConstructors": true,
     "allPublicMethods": true
+  },
+  {
+    "name": "dev.tamboui.backend.panama.PanamaBackendProvider",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "dev.tamboui.capability.core.CoreCapabilityProvider",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
   }
 ]

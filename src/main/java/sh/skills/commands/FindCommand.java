@@ -76,7 +76,13 @@ public class FindCommand implements Callable<Integer> {
 
         // Interactive mode when no query and TTY is available
         if (query == null && System.console() != null && !json) {
-            return executeInteractive();
+            try {
+                return executeInteractive();
+            } catch (Throwable e) {
+                // TamboUI/Panama may fail in native image — fall through to non-interactive
+                Console.error("Interactive mode unavailable: " + e.getMessage());
+                Console.log("");
+            }
         }
 
         // Non-interactive with no query (running in agent) — show tip
