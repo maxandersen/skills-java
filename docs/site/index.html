@@ -77,36 +77,47 @@
     }
     .install-card .note { font-size: 0.8rem; color: var(--dim); margin-top: 0.5rem; }
 
-    /* Copyable code block */
+    /* Copyable code block — click anywhere to copy */
     .code-block {
       background: var(--bg);
       border-radius: 6px;
       overflow-x: auto;
       position: relative;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      border: 1px solid transparent;
+    }
+    .code-block:hover { border-color: var(--card-border); }
+    .code-block.copied {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
     }
     .code-block pre {
-      padding: 0.75rem 3rem 0.75rem 1rem;
+      padding: 0.75rem 1rem;
       margin: 0;
       color: var(--fg);
     }
     .code-block .prompt { color: var(--dim); user-select: none; }
-    .code-block .comment { color: var(--dim); }
-    .copy-btn {
+    .code-block .comment { color: var(--dim); user-select: none; }
+    .code-block .toast {
       position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 4px;
-      color: var(--dim);
-      cursor: pointer;
-      padding: 0.25rem 0.4rem;
-      font-size: 0.75rem;
-      line-height: 1;
-      transition: all 0.15s;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s;
     }
-    .copy-btn:hover { color: var(--fg); border-color: #404040; }
-    .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+    .code-block.copied .toast { opacity: 1; }
 
     /* Tabs */
     .tabs {
@@ -191,14 +202,6 @@
       color: var(--dim);
       font-size: 0.85rem;
     }
-    .explore-card pre {
-      background: var(--bg);
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
-      color: var(--fg);
-    }
 
     /* Footer */
     footer {
@@ -230,13 +233,13 @@
   <section class="install">
     <div class="install-card">
       <h3>☕ via JBang (any OS with Java 25+)</h3>
-      <div class="code-block">
-        <button class="copy-btn" data-copy="curl -Ls https://sh.jbang.dev | bash -s - app setup" title="Copy">📋</button>
+      <div class="code-block" data-copy="curl -Ls https://sh.jbang.dev | bash -s - app setup">
         <pre><span class="prompt">$ </span>curl -Ls https://sh.jbang.dev | bash -s - app setup   <span class="comment"># install JBang if needed</span></pre>
+        <span class="toast">Copied!</span>
       </div>
-      <div class="code-block" style="margin-top: 0.5rem">
-        <button class="copy-btn" data-copy="jbang app install skills@maxandersen/jskills" title="Copy">📋</button>
+      <div class="code-block" data-copy="jbang app install skills@maxandersen/jskills" style="margin-top: 0.5rem">
         <pre><span class="prompt">$ </span>jbang app install skills@maxandersen/jskills</pre>
+        <span class="toast">Copied!</span>
       </div>
     </div>
 
@@ -248,23 +251,23 @@
         <button class="tab" data-tab="windows">Windows</button>
       </div>
       <div class="tab-content active" data-tab-panel="macos">
-        <div class="code-block" style="margin-top: 0.75rem">
-          <button class="copy-btn" data-copy="curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-macos-aarch64 && chmod +x skills && sudo mv skills /usr/local/bin/" title="Copy">📋</button>
+        <div class="code-block" data-copy="curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-macos-aarch64 && chmod +x skills" style="margin-top: 0.75rem">
           <pre><span class="prompt">$ </span>curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-macos-aarch64
-<span class="prompt">$ </span>chmod +x skills && sudo mv skills /usr/local/bin/</pre>
+<span class="prompt">$ </span>chmod +x skills</pre>
+          <span class="toast">Copied!</span>
         </div>
       </div>
       <div class="tab-content" data-tab-panel="linux">
-        <div class="code-block" style="margin-top: 0.75rem">
-          <button class="copy-btn" data-copy="curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-linux-amd64 && chmod +x skills && sudo mv skills /usr/local/bin/" title="Copy">📋</button>
+        <div class="code-block" data-copy="curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-linux-amd64 && chmod +x skills" style="margin-top: 0.75rem">
           <pre><span class="prompt">$ </span>curl -Lo skills https://github.com/maxandersen/jskills/releases/latest/download/skills-linux-amd64
-<span class="prompt">$ </span>chmod +x skills && sudo mv skills /usr/local/bin/</pre>
+<span class="prompt">$ </span>chmod +x skills</pre>
+          <span class="toast">Copied!</span>
         </div>
       </div>
       <div class="tab-content" data-tab-panel="windows">
-        <div class="code-block" style="margin-top: 0.75rem">
-          <button class="copy-btn" data-copy="curl -Lo skills.exe https://github.com/maxandersen/jskills/releases/latest/download/skills-windows-amd64.exe" title="Copy">📋</button>
+        <div class="code-block" data-copy="curl -Lo skills.exe https://github.com/maxandersen/jskills/releases/latest/download/skills-windows-amd64.exe" style="margin-top: 0.75rem">
           <pre><span class="prompt">&gt; </span>curl -Lo skills.exe https://github.com/maxandersen/jskills/releases/latest/download/skills-windows-amd64.exe</pre>
+          <span class="toast">Copied!</span>
         </div>
         <p class="note">Add the download location to your <code>PATH</code>.</p>
       </div>
@@ -312,7 +315,10 @@
       <div class="explore-card">
         <h3>🔍 Search from the CLI</h3>
         <p>Interactive fzf-style search with arrow keys, or pass a query directly.</p>
-        <pre><span style="color:#737373">$ </span>skills find web design</pre>
+        <div class="code-block" data-copy="skills find web design" style="margin-top: 0.75rem">
+          <pre><span class="prompt">$ </span>skills find web design</pre>
+          <span class="toast">Copied!</span>
+        </div>
       </div>
     </div>
   </section>
@@ -340,7 +346,7 @@ document.querySelectorAll('.tabs').forEach(tabBar => {
   });
 });
 
-// Auto-detect OS and select matching tab
+// Auto-detect OS
 (function() {
   const ua = navigator.userAgent.toLowerCase();
   let os = 'macos';
@@ -352,13 +358,12 @@ document.querySelectorAll('.tabs').forEach(tabBar => {
   });
 })();
 
-// Copy buttons
-document.querySelectorAll('.copy-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    navigator.clipboard.writeText(btn.dataset.copy).then(() => {
-      btn.textContent = '✓';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 1500);
+// Click-to-copy on all code blocks
+document.querySelectorAll('.code-block[data-copy]').forEach(block => {
+  block.addEventListener('click', () => {
+    navigator.clipboard.writeText(block.dataset.copy).then(() => {
+      block.classList.add('copied');
+      setTimeout(() => block.classList.remove('copied'), 1200);
     });
   });
 });
