@@ -324,12 +324,13 @@
   </p>
 </footer>
 
+<script src="skills.js"></script>
 <script>
 (function() {
   const searchInput = document.getElementById('search');
   const resultsDiv = document.getElementById('results');
   const countDiv = document.getElementById('count');
-  const API = 'https://skills.sh/api/search';
+  const allSkills = (typeof SKILLS !== 'undefined' ? SKILLS : []);
 
   function formatNum(n) {
     if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/, '') + 'k';
@@ -343,14 +344,14 @@
       return;
     }
     countDiv.textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
-    const addCmd = s => `skills add ${s.source}` + (s.source.includes('@') ? '' : `@${s.skillId || s.name}`);
+    const addCmd = s => `skills add ${s.s}@${s.n}`;
     resultsDiv.innerHTML = skills.slice(0, 100).map(s => `
       <div class="skill-row" title="${esc(addCmd(s))}">
         <div>
-          <div class="skill-name">${esc(s.name)}</div>
-          <div class="skill-source">${esc(s.source)}</div>
+          <div class="skill-name">${esc(s.n)}</div>
+          <div class="skill-source">${esc(s.s)}</div>
         </div>
-        <div class="skill-installs">${formatNum(s.installs)} installs</div>
+        <div class="skill-installs">${formatNum(s.i)} installs</div>
       </div>
     `).join('');
     if (skills.length > 100) {
@@ -362,41 +363,23 @@
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  let controller;
-  function search(q) {
-    if (controller) controller.abort();
-    if (!q || q.length < 2) {
-      resultsDiv.innerHTML = '<div class="loading">Type at least 2 characters to search</div>';
-      countDiv.textContent = '';
-      return;
-    }
-    controller = new AbortController();
-    resultsDiv.innerHTML = '<div class="loading"><span class="spinner"></span> Searching…</div>';
-    fetch(API + '?q=' + encodeURIComponent(q), { signal: controller.signal })
-      .then(r => r.json())
-      .then(data => {
-        const skills = (data.skills || []).sort((a,b) => b.installs - a.installs);
-        render(skills);
-      })
-      .catch(e => {
-        if (e.name === 'AbortError') return;
-        resultsDiv.innerHTML = '<div class="loading">Search failed. <a href="https://github.com/maxandersen/jskills">Try the CLI instead.</a></div>';
-      });
+  function filter(q) {
+    if (!q) return allSkills;
+    const terms = q.toLowerCase().split(/\s+/);
+    return allSkills.filter(s => {
+      const hay = (s.n + ' ' + s.s).toLowerCase();
+      return terms.every(t => hay.includes(t));
+    });
   }
 
   let debounce;
   searchInput.addEventListener('input', () => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => search(searchInput.value.trim()), 250);
+    debounce = setTimeout(() => render(filter(searchInput.value.trim())), 80);
   });
 
-  // Load popular skills on start
-  fetch(API + '?q=skills')
-    .then(r => r.json())
-    .then(data => render((data.skills || []).sort((a,b) => b.installs - a.installs)))
-    .catch(() => {
-      resultsDiv.innerHTML = '<div class="loading">Type a query to search the skills registry</div>';
-    });
+  // Show top skills on load
+  render(allSkills);
 })();
 </script>
 
