@@ -10,9 +10,12 @@ on:
         description: 'Version to release (e.g. 1.5.1) — should match upstream vercel-labs/skills'
         required: true
 
+permissions:
+  contents: write
+
 jobs:
-  build-jar:
-    name: Build JAR
+  release-jar:
+    name: Release JAR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,90 +46,10 @@ jobs:
       - name: Build and test
         run: mvn --no-transfer-progress verify
 
-      - name: Upload JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: jar
-          path: target/jskills-${{ steps.version.outputs.version }}-runner.jar
-
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
-  build-native:
-    name: Native ${{ matrix.label }}
-    needs: build-jar
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-amd64
-            artifact: skills-linux-amd64
-            graalvm: '25'
-          - os: macos-latest
-            label: macos-aarch64
-            artifact: skills-macos-aarch64
-            graalvm: '25'
-          - os: windows-latest
-            label: windows-amd64
-            artifact: skills-windows-amd64.exe
-            graalvm: '25'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up GraalVM
-        uses: graalvm/setup-graalvm@v1
-        with:
-          java-version: ${{ matrix.graalvm }}
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set Maven version
-        run: mvn --no-transfer-progress versions:set -DnewVersion=${{ needs.build-jar.outputs.version }}
-
-      - name: Build native image
-        run: mvn --no-transfer-progress package -Dnative -DskipTests
-
-      - name: Rename binary (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: mv target/jskills-${{ needs.build-jar.outputs.version }}-runner ${{ matrix.artifact }}
-
-      - name: Rename binary (Windows)
-        if: runner.os == 'Windows'
-        run: mv target/jskills-${{ needs.build-jar.outputs.version }}-runner.exe ${{ matrix.artifact }}
-
-      - name: Upload native binary
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.label }}
-          path: ${{ matrix.artifact }}
-
-  release:
-    name: Release
-    needs: [build-jar, build-native]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Prepare release directory
+      - name: Prepare release
         run: |
           mkdir -p release
-          cp artifacts/jar/jskills-${{ needs.build-jar.outputs.version }}-runner.jar release/jskills-${{ needs.build-jar.outputs.version }}.jar
-          cp artifacts/linux-amd64/skills-linux-amd64 release/
-          cp artifacts/macos-aarch64/skills-macos-aarch64 release/
-          cp artifacts/windows-amd64/skills-windows-amd64.exe release/
-          chmod +x release/skills-linux-amd64 release/skills-macos-aarch64
+          cp target/jskills-${{ steps.version.outputs.version }}-runner.jar release/jskills-${{ steps.version.outputs.version }}.jar
 
       - name: Run JReleaser
         uses: jreleaser/release-action@v2
@@ -134,7 +57,7 @@ jobs:
           version: latest
           arguments: full-release
         env:
-          JRELEASER_PROJECT_VERSION: ${{ needs.build-jar.outputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ steps.version.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: JReleaser output
@@ -145,3 +68,55 @@ jobs:
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+  release-native:
+    name: Native ${{ matrix.label }}
+    needs: release-jar
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-amd64
+            artifact: skills-linux-amd64
+          - os: macos-latest
+            label: macos-aarch64
+            artifact: skills-macos-aarch64
+          - os: windows-latest
+            label: windows-amd64
+            artifact: skills-windows-amd64.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Maven version
+        run: mvn --no-transfer-progress versions:set -DnewVersion=${{ needs.release-jar.outputs.version }}
+
+      - name: Build native image
+        run: mvn --no-transfer-progress package -Dnative -DskipTests
+
+      - name: Rename binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: mv target/jskills-${{ needs.release-jar.outputs.version }}-runner ${{ matrix.artifact }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        run: mv target/jskills-${{ needs.release-jar.outputs.version }}-runner.exe ${{ matrix.artifact }}
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v${{ needs.release-jar.outputs.version }} ${{ matrix.artifact }} --clobber --repo ${{ github.repository }}

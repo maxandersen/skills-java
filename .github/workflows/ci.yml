@@ -39,8 +39,8 @@ jobs:
           name: test-reports-${{ matrix.os }}
           path: target/surefire-reports/
 
-  early-access:
-    name: Early Access
+  early-access-jar:
+    name: Early Access JAR
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -80,7 +80,59 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jreleaser-early-access
+          name: jreleaser-early-access-jar
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
+
+  early-access-native:
+    name: Early Access Native ${{ matrix.label }}
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-amd64
+            artifact: skills-linux-amd64
+          - os: macos-latest
+            label: macos-aarch64
+            artifact: skills-macos-aarch64
+          - os: windows-latest
+            label: windows-amd64
+            artifact: skills-windows-amd64.exe
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set version
+        run: mvn --no-transfer-progress versions:set -DnewVersion=0.0.0-SNAPSHOT
+
+      - name: Build native image
+        run: mvn --no-transfer-progress package -Dnative -DskipTests
+
+      - name: Rename binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: mv target/jskills-0.0.0-SNAPSHOT-runner ${{ matrix.artifact }}
+
+      - name: Rename binary (Windows)
+        if: runner.os == 'Windows'
+        run: mv target/jskills-0.0.0-SNAPSHOT-runner.exe ${{ matrix.artifact }}
+
+      - name: Upload to early-access release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload early-access ${{ matrix.artifact }} --clobber --repo ${{ github.repository }}

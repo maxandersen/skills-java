@@ -39,12 +39,3 @@ distributions:
     type: SINGLE_JAR
     artifacts:
       - path: release/jskills-{{projectVersion}}.jar
-
-files:
-  artifacts:
-    - path: release/skills-linux-amd64
-      platform: linux-x86_64
-    - path: release/skills-macos-aarch64
-      platform: osx-aarch_64
-    - path: release/skills-windows-amd64.exe
-      platform: windows-x86_64
