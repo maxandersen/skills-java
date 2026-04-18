@@ -378,6 +378,9 @@ public class AddCommand implements Callable<Integer> {
         return Paths.get(System.getProperty("user.dir"), agent.getSkillsDir());
     }
 
+    /** Default agents to pre-select when no history exists (matches upstream) */
+    private static final List<String> DEFAULT_AGENTS = List.of("claude-code", "opencode", "codex");
+
     private List<AgentConfig> resolveAgents() {
         if (!agents.isEmpty()) {
             List<AgentConfig> result = new ArrayList<>();
@@ -394,6 +397,11 @@ public class AddCommand implements Callable<Integer> {
         List<AgentConfig> installed = AgentRegistry.getInstalledAgents();
         if (!installed.isEmpty()) {
             if (yes || installAll) {
+                return installed;
+            }
+            // Single agent detected: auto-select, no prompt
+            if (installed.size() == 1) {
+                Console.log("Installing to: " + Console.cyan(installed.get(0).getDisplayName()));
                 return installed;
             }
             return promptAgentSelection(installed);
@@ -414,7 +422,7 @@ public class AddCommand implements Callable<Integer> {
             options.add(new SelectOption<>(skill, skill.getName(), hint));
         }
 
-        // Pre-select all
+        // Pre-select all skills
         Set<Integer> preSelected = new HashSet<>();
         for (int i = 0; i < options.size(); i++) preSelected.add(i);
 
@@ -428,9 +436,13 @@ public class AddCommand implements Callable<Integer> {
             options.add(new SelectOption<>(agent, agent.getDisplayName()));
         }
 
-        // Pre-select all
+        // Pre-select: use defaults (claude-code, opencode, codex) matching upstream
         Set<Integer> preSelected = new HashSet<>();
-        for (int i = 0; i < options.size(); i++) preSelected.add(i);
+        for (int i = 0; i < agents.size(); i++) {
+            if (DEFAULT_AGENTS.contains(agents.get(i).getName())) {
+                preSelected.add(i);
+            }
+        }
 
         List<AgentConfig> selected = Prompts.multiselect("Select agents to install to", options, preSelected);
         return selected != null ? selected : List.of();
