@@ -17,12 +17,19 @@ project:
       mainClass: sh.skills.Skills
       version: 25
   inceptionYear: "2025"
+  snapshot:
+    label: early-access
+    fullChangelog: true
 
 release:
   github:
     owner: maxandersen
     name: jskills
     overwrite: true
+    update:
+      enabled: true
+      sections:
+        - ASSETS
     tagName: "v{{projectVersion}}"
     releaseName: "v{{projectVersion}}"
     changelog:

@@ -65,13 +65,15 @@ jobs:
         run: mvn --no-transfer-progress package -DskipTests
 
       - name: Prepare artifact
-        run: cp target/jskills-0.0.0-SNAPSHOT-runner.jar target/jskills-0.0.0-SNAPSHOT.jar
+        run: |
+          mkdir -p release
+          cp target/jskills-0.0.0-SNAPSHOT-runner.jar release/jskills-0.0.0-SNAPSHOT.jar
 
       - name: Run JReleaser
         uses: jreleaser/release-action@v2
         with:
           version: latest
-          arguments: full-release -c jreleaser-early-access.yml
+          arguments: full-release
         env:
           JRELEASER_PROJECT_VERSION: 0.0.0-SNAPSHOT
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
