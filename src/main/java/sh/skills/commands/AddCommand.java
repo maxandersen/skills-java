@@ -235,7 +235,7 @@ public class AddCommand implements Callable<Integer> {
             Console.log("\n" + Console.yellow("[DRY RUN]") + " Would install:");
             for (Skill skill : skillsToInstall) {
                 for (AgentConfig agent : targetAgents) {
-                    String dir = global ? agent.getGlobalSkillsDir() : agent.getSkillsDir();
+                    String dir = (global ? agent.resolveGlobalSkillsPath() : agent.resolveProjectSkillsPath()).toString();
                     Console.log("  " + skill.getName() + " → " + dir + "/" + skill.getName() + "/SKILL.md");
                 }
             }
@@ -370,12 +370,10 @@ public class AddCommand implements Callable<Integer> {
     }
 
     private Path resolveTargetDir(AgentConfig agent) {
-        String home = System.getProperty("user.home");
         if (global) {
-            return Paths.get(home, agent.getGlobalSkillsDir() != null
-                ? agent.getGlobalSkillsDir() : agent.getSkillsDir());
+            return agent.resolveGlobalSkillsPath();
         }
-        return Paths.get(System.getProperty("user.dir"), agent.getSkillsDir());
+        return agent.resolveProjectSkillsPath();
     }
 
     /** Default agents to pre-select when no history exists (matches upstream) */

@@ -15,6 +15,7 @@ import sh.skills.tui.Prompts;
 import sh.skills.tui.Prompts.SelectOption;
 import sh.skills.util.Console;
 import sh.skills.util.PathUtils;
+import sh.skills.util.Sanitize;
 import sh.skills.util.UpdateSource;
 
 import java.nio.file.*;
@@ -201,7 +202,7 @@ public class UpdateCommand implements Callable<Integer> {
         for (int i = 0; i < checkable.size(); i++) {
             SkillEntry se = checkable.get(i);
             Console.printInline("\r" + Console.dim("Checking global skill " + (i + 1) + "/"
-                + checkable.size() + ": " + se.name));
+                + checkable.size() + ": " + Sanitize.sanitizeMetadata(se.name)));
 
             try {
                 String fetchSource = se.lock.getRef() != null
@@ -242,7 +243,7 @@ public class UpdateCommand implements Callable<Integer> {
             System.out.println();
 
             for (SkillEntry update : updates) {
-                Console.log("Updating " + update.name + "...");
+                Console.log("Updating " + Sanitize.sanitizeMetadata(update.name) + "...");
                 String installSource = UpdateSource.buildUpdateInstallSource(
                     update.lock.getSource(),
                     update.lock.getSourceUrl(),
@@ -253,10 +254,10 @@ public class UpdateCommand implements Callable<Integer> {
                 try {
                     performUpdate(installSource, update.name, true);
                     successCount++;
-                    Console.log("  " + Console.green("✓") + " Updated " + update.name);
+                    Console.log("  " + Console.green("✓") + " Updated " + Sanitize.sanitizeMetadata(update.name));
                 } catch (Exception e) {
                     failCount++;
-                    Console.log("  " + Console.dim("✗ Failed to update " + update.name));
+                    Console.log("  " + Console.dim("✗ Failed to update " + Sanitize.sanitizeMetadata(update.name)));
                 }
             }
         }
@@ -303,17 +304,17 @@ public class UpdateCommand implements Callable<Integer> {
             String skillName = key.contains(":") ? key.substring(key.indexOf(':') + 1) : key;
             SkillLockEntry lock = entry.getValue();
 
-            Console.log("Updating " + skillName + "...");
+            Console.log("Updating " + Sanitize.sanitizeMetadata(skillName) + "...");
             String installSource = UpdateSource.buildLocalUpdateSource(
-                lock.getSource(), lock.getRef());
+                lock.getSource(), lock.getRef(), lock.getSkillPath());
 
             try {
                 performUpdate(installSource, skillName, false);
                 successCount++;
-                Console.log("  " + Console.green("✓") + " Updated " + skillName);
+                Console.log("  " + Console.green("✓") + " Updated " + Sanitize.sanitizeMetadata(skillName));
             } catch (Exception e) {
                 failCount++;
-                Console.log("  " + Console.dim("✗ Failed to update " + skillName));
+                Console.log("  " + Console.dim("✗ Failed to update " + Sanitize.sanitizeMetadata(skillName)));
             }
         }
 
@@ -349,9 +350,8 @@ public class UpdateCommand implements Callable<Integer> {
             // Install to all agents that have the skill
             for (AgentConfig agent : AgentRegistry.getAgents()) {
                 Path skillsDir = isGlobal
-                    ? Paths.get(home, agent.getGlobalSkillsDir() != null
-                        ? agent.getGlobalSkillsDir() : agent.getSkillsDir())
-                    : Paths.get(projectDir, agent.getSkillsDir());
+                    ? agent.resolveGlobalSkillsPath()
+                    : agent.resolveProjectSkillsPath();
 
                 Path skillDir = skillsDir.resolve(PathUtils.sanitizeName(skillName));
                 if (!Files.isDirectory(skillDir)) continue; // Only update where already installed
@@ -416,9 +416,9 @@ public class UpdateCommand implements Callable<Integer> {
         System.out.println();
         Console.log(Console.dim(skipped.size() + " skill(s) cannot be checked automatically:"));
         for (SkippedSkill skill : skipped) {
-            Console.log("  • " + skill.name + " " + Console.dim("(" + skill.reason + ")"));
-            String updateSource = UpdateSource.formatSourceInput(
-                skill.sourceUrl != null ? skill.sourceUrl : "", skill.ref);
+            Console.log("  • " + Sanitize.sanitizeMetadata(skill.name) + " " + Console.dim("(" + skill.reason + ")"));
+            String updateSource = Sanitize.sanitizeMetadata(UpdateSource.formatSourceInput(
+                skill.sourceUrl != null ? skill.sourceUrl : "", skill.ref));
             Console.log("    " + Console.dim("To update: ") + Console.cyan("skills add " + updateSource + " -g -y"));
         }
     }

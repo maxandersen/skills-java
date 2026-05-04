@@ -69,9 +69,8 @@ public class RemoveCommand implements Callable<Integer> {
         int removed = 0;
         for (AgentConfig agent : targetAgents) {
             Path skillsDir = global
-                ? Paths.get(home, agent.getGlobalSkillsDir() != null
-                    ? agent.getGlobalSkillsDir() : agent.getSkillsDir())
-                : Paths.get(projectDir, agent.getSkillsDir());
+                ? agent.resolveGlobalSkillsPath()
+                : agent.resolveProjectSkillsPath();
 
             if (!Files.isDirectory(skillsDir)) continue;
 

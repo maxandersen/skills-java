@@ -13,6 +13,7 @@ import sh.skills.model.SkillLockEntry;
 import sh.skills.providers.SkillDiscovery;
 import sh.skills.util.Console;
 import sh.skills.util.FrontmatterParser;
+import sh.skills.util.Sanitize;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -73,10 +74,9 @@ public class ListCommand implements Callable<Integer> {
         for (AgentConfig agent : agents) {
             Path skillsDir;
             if (global) {
-                skillsDir = Paths.get(home, agent.getGlobalSkillsDir() != null
-                    ? agent.getGlobalSkillsDir() : agent.getSkillsDir());
+                skillsDir = agent.resolveGlobalSkillsPath();
             } else {
-                skillsDir = Paths.get(projectDir, agent.getSkillsDir());
+                skillsDir = agent.resolveProjectSkillsPath();
             }
 
             scannedDirs.add(skillsDir);
@@ -104,10 +104,9 @@ public class ListCommand implements Callable<Integer> {
             for (AgentConfig agent : AgentRegistry.getAgents()) {
                 Path skillsDir;
                 if (global) {
-                    skillsDir = Paths.get(home, agent.getGlobalSkillsDir() != null
-                        ? agent.getGlobalSkillsDir() : agent.getSkillsDir());
+                    skillsDir = agent.resolveGlobalSkillsPath();
                 } else {
-                    skillsDir = Paths.get(projectDir, agent.getSkillsDir());
+                    skillsDir = agent.resolveProjectSkillsPath();
                 }
 
                 if (scannedDirs.contains(skillsDir) || !Files.isDirectory(skillsDir)) continue;
@@ -250,9 +249,9 @@ public class ListCommand implements Callable<Integer> {
     private void printSkillInfo(SkillInfo info, boolean indent) {
         String prefix = indent ? "  " : "";
         String shortPath = shortenPath(info.path);
-        Console.log(prefix + Console.cyan(info.name) + " " + Console.dim(shortPath));
+        Console.log(prefix + Console.cyan(Sanitize.sanitizeMetadata(info.name)) + " " + Console.dim(shortPath));
         if (info.description != null && !info.description.isEmpty()) {
-            Console.log(prefix + "  " + Console.dim(info.description));
+            Console.log(prefix + "  " + Console.dim(Sanitize.sanitizeMetadata(info.description)));
         }
         String agentList = info.agents.size() <= 5
             ? String.join(", ", info.agents)

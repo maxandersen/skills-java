@@ -2,6 +2,7 @@ package sh.skills.util;
 
 import org.yaml.snakeyaml.Yaml;
 import sh.skills.model.Skill;
+import sh.skills.util.Sanitize;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class FrontmatterParser {
         Map<String, String> data = new HashMap<>();
         for (Map.Entry<String, Object> entry : frontmatter.entrySet()) {
             if (entry.getValue() != null) {
-                data.put(entry.getKey(), entry.getValue().toString());
+                data.put(entry.getKey(), Sanitize.sanitizeMetadata(entry.getValue().toString()));
             }
         }
         return new FrontmatterResult(data, markdownContent);
@@ -118,8 +119,8 @@ public class FrontmatterParser {
 
         if (nameObj == null || descObj == null) return null;
 
-        String name = nameObj.toString().trim();
-        String description = descObj.toString().trim();
+        String name = Sanitize.sanitizeMetadata(nameObj.toString());
+        String description = Sanitize.sanitizeMetadata(descObj.toString());
 
         if (name.isEmpty() || description.isEmpty()) return null;
 

@@ -1,7 +1,7 @@
 {
   "repo": "vercel-labs/skills",
-  "lastSyncedSha": "bc21a37a12",
-  "lastChecked": "2026-04-17T22:00:00Z",
+  "lastSyncedSha": "7c0a9af3f8738965b71341712710ac7371089b34",
+  "lastChecked": "2026-05-03T00:00:00Z",
   "syncedVersion": "v1.5.1",
   "note": "Update this file after porting upstream changes. The upstream-sync workflow updates this automatically."
 }

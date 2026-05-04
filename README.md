@@ -95,7 +95,7 @@ skills add ./my-local-skills
 
 ## Supported Agents
 
-All 45 agents from the upstream are supported, including:
+All upstream-supported agents are supported, including:
 Claude Code, Cursor, OpenCode, Cline, Codex, Continue, Gemini CLI, GitHub Copilot, Goose, Kiro, OpenHands, Replit, Roo, Windsurf, and many more.
 
 ## Options

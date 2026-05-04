@@ -20,19 +20,28 @@ class AgentRegistryTest {
     @DisplayName("agents should have correct project-level skillsDir")
     @CsvSource({
         // Canonical .agents/skills agents
+        "aider-desk,    .aider-desk/skills",
         "amp,           .agents/skills",
         "antigravity,   .agents/skills",
         "cline,         .agents/skills",
+        "codearts-agent,.codeartsdoer/skills",
+        "codemaker,     .codemaker/skills",
+        "codestudio,    .codestudio/skills",
         "codex,         .agents/skills",
         "cursor,        .agents/skills",
         "deepagents,    .agents/skills",
+        "devin,         .devin/skills",
+        "dexto,         .agents/skills",
         "firebender,    .agents/skills",
+        "forgecode,     .forge/skills",
         "gemini-cli,    .agents/skills",
         "github-copilot,.agents/skills",
         "kimi-cli,      .agents/skills",
         "opencode,      .agents/skills",
         "replit,        .agents/skills",
+        "rovodev,       .rovodev/skills",
         "warp,          .agents/skills",
+        "tabnine-cli,   .tabnine/agent/skills",
         // Agent-specific dirs
         "claude-code,   .claude/skills",
         "droid,         .factory/skills",

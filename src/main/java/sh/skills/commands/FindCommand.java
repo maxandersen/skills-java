@@ -8,6 +8,7 @@ import picocli.CommandLine.Parameters;
 import sh.skills.commands.AddCommand;
 import sh.skills.tui.InteractiveFind;
 import sh.skills.util.Console;
+import sh.skills.util.Sanitize;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -152,9 +153,9 @@ public class FindCommand implements Callable<Integer> {
         int shown = 0;
         for (JsonNode skill : skills) {
             if (shown >= limit) break;
-            String name = skill.path("name").asText("unknown");
-            String slug = skill.path("id").asText(skill.path("slug").asText(""));
-            String source = skill.path("source").asText("");
+            String name = Sanitize.sanitizeMetadata(skill.path("name").asText("unknown"));
+            String slug = Sanitize.sanitizeMetadata(skill.path("id").asText(skill.path("slug").asText("")));
+            String source = Sanitize.sanitizeMetadata(skill.path("source").asText(""));
             int installs = skill.path("installs").asInt(0);
 
             // Format: source@skill-name <installs>

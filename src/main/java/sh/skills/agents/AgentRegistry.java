@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public class AgentRegistry {
 
-    // All agents synced with upstream agents.ts (v1.5.1, commit bc21a37a12)
+    // All agents synced with upstream agents.ts (v1.5.1, commit 7c0a9af3f8)
     // Format: name, displayName, skillsDir (project), globalSkillsDir, detectPath
     private static final List<AgentConfig> AGENTS = Collections.unmodifiableList(Arrays.asList(
         new AgentConfig("claude-code", "Claude Code",
@@ -105,6 +105,24 @@ public class AgentRegistry {
             ".kilocode/skills", ".kilocode/skills", ".kilocode"),
         new AgentConfig("warp", "Warp",
             ".agents/skills", ".agents/skills", ".warp"),
+        new AgentConfig("aider-desk", "AiderDesk",
+            ".aider-desk/skills", ".aider-desk/skills", ".aider-desk"),
+        new AgentConfig("codearts-agent", "CodeArts Agent",
+            ".codeartsdoer/skills", ".codeartsdoer/skills", ".codeartsdoer"),
+        new AgentConfig("codemaker", "Codemaker",
+            ".codemaker/skills", ".codemaker/skills", ".codemaker"),
+        new AgentConfig("codestudio", "Code Studio",
+            ".codestudio/skills", ".codestudio/skills", ".codestudio"),
+        new AgentConfig("devin", "Devin for Terminal",
+            ".devin/skills", ".devin/skills", ".devin"),
+        new AgentConfig("dexto", "Dexto",
+            ".agents/skills", ".agents/skills", ".dexto"),
+        new AgentConfig("forgecode", "ForgeCode",
+            ".forge/skills", ".forge/skills", ".forge"),
+        new AgentConfig("rovodev", "Rovo Dev",
+            ".rovodev/skills", ".rovodev/skills", ".rovodev"),
+        new AgentConfig("tabnine-cli", "Tabnine CLI",
+            ".tabnine/agent/skills", ".tabnine/agent/skills", ".tabnine"),
         // Universal agent — canonical .agents/skills dir
         new AgentConfig("universal", "Universal",
             ".agents/skills", ".agents/skills", ".agents")

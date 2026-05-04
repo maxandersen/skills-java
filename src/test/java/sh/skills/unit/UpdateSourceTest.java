@@ -69,13 +69,22 @@ class UpdateSourceTest {
 
     @Test
     void buildLocalUpdateSource_withoutRef() {
-        assertThat(UpdateSource.buildLocalUpdateSource("vercel-labs/agent-skills", null))
+        assertThat(UpdateSource.buildLocalUpdateSource("vercel-labs/agent-skills", null, null))
             .isEqualTo("vercel-labs/agent-skills");
     }
 
     @Test
     void buildLocalUpdateSource_withRef() {
-        assertThat(UpdateSource.buildLocalUpdateSource("vercel-labs/agent-skills", "main"))
+        assertThat(UpdateSource.buildLocalUpdateSource("vercel-labs/agent-skills", "main", null))
             .isEqualTo("vercel-labs/agent-skills#main");
+    }
+
+    @Test
+    void buildLocalUpdateSource_withSkillPath() {
+        assertThat(UpdateSource.buildLocalUpdateSource(
+            "vercel-labs/agent-skills",
+            "main",
+            "skills/react-best-practices/SKILL.md"
+        )).isEqualTo("vercel-labs/agent-skills/skills/react-best-practices#main");
     }
 }

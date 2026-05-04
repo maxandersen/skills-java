@@ -48,7 +48,25 @@ public class UpdateSource {
      * Build the source argument for `skills add` during project-level update.
      * Local lock entries only have source and ref (no skillPath or sourceUrl).
      */
-    public static String buildLocalUpdateSource(String source, String ref) {
-        return formatSourceInput(source, ref);
+    public static String buildLocalUpdateSource(String source, String ref, String skillPath) {
+        if (skillPath == null || skillPath.isEmpty()) {
+            return formatSourceInput(source, ref);
+        }
+
+        String skillFolder = skillPath;
+        if (skillFolder.endsWith("/SKILL.md")) {
+            skillFolder = skillFolder.substring(0, skillFolder.length() - 9);
+        } else if (skillFolder.endsWith("SKILL.md")) {
+            skillFolder = skillFolder.substring(0, skillFolder.length() - 8);
+        }
+        if (skillFolder.endsWith("/")) {
+            skillFolder = skillFolder.substring(0, skillFolder.length() - 1);
+        }
+
+        String installSource = !skillFolder.isEmpty() ? source + "/" + skillFolder : source;
+        if (ref != null && !ref.isEmpty()) {
+            installSource = installSource + "#" + ref;
+        }
+        return installSource;
     }
 }

@@ -13,6 +13,7 @@ import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.input.TextInputState;
 import sh.skills.commands.FindCommand;
+import sh.skills.util.Sanitize;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -216,9 +217,9 @@ public class InteractiveFind extends InlineApp {
         if (skills.isArray()) {
             for (JsonNode skill : skills) {
                 list.add(new SkillResult(
-                    skill.path("name").asText(""),
-                    skill.path("id").asText(skill.path("slug").asText("")),
-                    skill.path("source").asText(""),
+                    Sanitize.sanitizeMetadata(skill.path("name").asText("")),
+                    Sanitize.sanitizeMetadata(skill.path("id").asText(skill.path("slug").asText(""))),
+                    Sanitize.sanitizeMetadata(skill.path("source").asText("")),
                     skill.path("installs").asInt(0)
                 ));
             }

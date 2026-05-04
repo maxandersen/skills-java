@@ -17,8 +17,10 @@ import java.nio.file.Path;
  */
 public class GitUtils {
 
-    /** Default clone timeout in seconds (matches TypeScript 60s) */
-    private static final int CLONE_TIMEOUT_SECONDS = 60;
+    /** Default clone timeout in milliseconds (upstream now uses 5 minutes). */
+    private static final long DEFAULT_CLONE_TIMEOUT_MS = 300_000L;
+    private static final long CLONE_TIMEOUT_MS = parseCloneTimeoutMs();
+    private static final int CLONE_TIMEOUT_SECONDS = (int) Math.max(1, Math.round(CLONE_TIMEOUT_MS / 1000.0));
 
     /**
      * Shallow-clone a repository to a temporary directory.
@@ -45,7 +47,8 @@ public class GitUtils {
 
         try {
             // Note: JGit (pure Java) does not invoke git-lfs, so LFS smudge
-            // is inherently skipped (upstream #952 is a no-op for JGit).
+            // is inherently skipped. Upstream's git-lfs filter workaround is
+            // unnecessary here because checkout never shells out to git-lfs.
             CloneCommand cmd = Git.cloneRepository()
                     .setURI(url)
                     .setDirectory(tempDir.toFile())
@@ -91,7 +94,8 @@ public class GitUtils {
                     "Set GITHUB_TOKEN environment variable for private repos.", e);
             }
             if (msg != null && msg.contains("timeout")) {
-                throw new GitCloneException("Clone timed out for " + url + " after " + CLONE_TIMEOUT_SECONDS + "s.", e);
+                throw new GitCloneException("Clone timed out for " + url + " after " + CLONE_TIMEOUT_SECONDS + "s. " +
+                    "Common causes: large repo, slow network, or missing credentials.", e);
             }
             throw new GitCloneException("Failed to clone " + url + ": " + msg, e);
         } catch (GitAPIException e) {
@@ -119,5 +123,18 @@ public class GitUtils {
     public static class GitCloneException extends Exception {
         public GitCloneException(String message) { super(message); }
         public GitCloneException(String message, Throwable cause) { super(message, cause); }
+    }
+
+    private static long parseCloneTimeoutMs() {
+        String raw = System.getenv("SKILLS_CLONE_TIMEOUT_MS");
+        if (raw == null || raw.isBlank()) {
+            return DEFAULT_CLONE_TIMEOUT_MS;
+        }
+        try {
+            long parsed = Long.parseLong(raw.trim());
+            return parsed > 0 ? parsed : DEFAULT_CLONE_TIMEOUT_MS;
+        } catch (NumberFormatException e) {
+            return DEFAULT_CLONE_TIMEOUT_MS;
+        }
     }
 }

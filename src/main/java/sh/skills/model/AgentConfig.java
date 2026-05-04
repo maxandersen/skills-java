@@ -33,6 +33,29 @@ public class AgentConfig {
     public String getGlobalSkillsDir() { return globalSkillsDir; }
 
     /**
+     * Resolve the project-level skills directory for this agent.
+     */
+    public Path resolveProjectSkillsPath() {
+        return Paths.get(System.getProperty("user.dir"), skillsDir);
+    }
+
+    /**
+     * Resolve the global skills directory for this agent.
+     *
+     * Supports Mistral Vibe's VIBE_HOME override.
+     */
+    public Path resolveGlobalSkillsPath() {
+        if ("mistral-vibe".equalsIgnoreCase(name)) {
+            String vibeHome = System.getenv("VIBE_HOME");
+            if (vibeHome != null && !vibeHome.isBlank()) {
+                return Paths.get(vibeHome.trim(), "skills");
+            }
+        }
+        String home = System.getProperty("user.home");
+        return Paths.get(home, globalSkillsDir != null ? globalSkillsDir : skillsDir);
+    }
+
+    /**
      * Returns true if this agent appears to be installed on this machine.
      */
     public boolean isInstalled() {
