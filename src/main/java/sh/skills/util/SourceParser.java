@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,11 @@ public class SourceParser {
         "coinbase/agentWallet", "coinbase/agentic-wallet-skills"
     );
 
+    // Hosts handled by dedicated providers (not GitHub Enterprise)
+    private static final Set<String> GHE_EXCLUDED_HOSTS = Set.of(
+        "github.com", "gitlab.com", "raw.githubusercontent.com"
+    );
+
     // Patterns
     private static final Pattern GITHUB_TREE_WITH_PATH = Pattern.compile(
         "github\\.com/([^/]+)/([^/]+)/tree/([^/]+)/(.+)");
@@ -36,6 +42,10 @@ public class SourceParser {
         "^(https?)://([^/]+)/(.+?)/-/tree/([^/]+)$");
     private static final Pattern GITLAB_REPO = Pattern.compile(
         "gitlab\\.com/(.+?)(?:\\.git)?/?$");
+    private static final Pattern GHE_PREFIX = Pattern.compile(
+        "^ghe:([^/]+)/([a-zA-Z0-9][^/]*)/([a-zA-Z0-9][^/]*)(?:/tree/([^/]+)(?:/(.+))?)?$");
+    private static final Pattern GHE_HTTPS = Pattern.compile(
+        "^https?://([^/]+)/([a-zA-Z0-9][^/]*)/([a-zA-Z0-9][^/]*)(?:/tree/([^/]+)(?:/(.+))?)?$");
     private static final Pattern AT_SKILL = Pattern.compile(
         "^([^/]+)/([^/@]+)@(.+)$");
     private static final Pattern SHORTHAND = Pattern.compile(
@@ -81,6 +91,23 @@ public class SourceParser {
         if (input.startsWith("gitlab:")) {
             return parseSource(appendFragmentRef(
                 "https://gitlab.com/" + input.substring(7), frag.ref, frag.skillFilter));
+        }
+
+        // Prefix shorthand: ghe:hostname/owner/repo
+        if (input.startsWith("ghe:")) {
+            Matcher m = GHE_PREFIX.matcher(input);
+            if (m.matches()) {
+                String host = m.group(1);
+                String owner = m.group(2);
+                String repo = m.group(3).replaceAll("\\.git$", "");
+                String ref = m.group(4) != null ? m.group(4) : frag.ref;
+                String subpath = m.group(5) != null ? sanitizeSubpath(m.group(5)) : null;
+                return ParsedSource.builder("github-enterprise",
+                        "https://" + host + "/" + owner + "/" + repo + ".git")
+                    .ref(ref)
+                    .subpath(subpath)
+                    .build();
+            }
         }
 
         // GitHub URL with path: .../tree/branch/path
@@ -164,7 +191,26 @@ public class SourceParser {
                 .build();
         }
 
-        // Well-known skills: HTTP(S) URLs that aren't GitHub/GitLab
+        // GitHub Enterprise HTTPS URL: https://ghe-hostname/owner/repo[/tree/branch[/path]]
+        if (input.startsWith("http://") || input.startsWith("https://")) {
+            Matcher gheM = GHE_HTTPS.matcher(input);
+            if (gheM.matches()) {
+                String host = gheM.group(1).toLowerCase();
+                if (!GHE_EXCLUDED_HOSTS.contains(host)) {
+                    String owner = gheM.group(2);
+                    String repo = gheM.group(3).replaceAll("\\.git$", "");
+                    String ref = gheM.group(4) != null ? gheM.group(4) : frag.ref;
+                    String subpath = gheM.group(5) != null ? sanitizeSubpath(gheM.group(5)) : null;
+                    return ParsedSource.builder("github-enterprise",
+                            "https://" + host + "/" + owner + "/" + repo + ".git")
+                        .ref(ref)
+                        .subpath(subpath)
+                        .build();
+                }
+            }
+        }
+
+        // Well-known skills: HTTP(S) URLs that aren't GitHub/GitLab/GHE
         if (isWellKnownUrl(input)) {
             return ParsedSource.builder("well-known", input).build();
         }
@@ -255,7 +301,7 @@ public class SourceParser {
     }
 
     public static boolean looksLikeGitSource(String input) {
-        if (input.startsWith("github:") || input.startsWith("gitlab:") || input.startsWith("git@")) {
+        if (input.startsWith("github:") || input.startsWith("gitlab:") || input.startsWith("ghe:") || input.startsWith("git@")) {
             return true;
         }
 
@@ -270,6 +316,12 @@ public class SourceParser {
                 }
                 if ("gitlab.com".equals(hostname)) {
                     return path != null && path.matches("^/.+?/[^/]+(?:\\.git)?(?:/-/tree/[^/]+(?:/.*)?)?/?$");
+                }
+                // GitHub Enterprise: any non-excluded host with owner/repo path structure
+                // owner/repo segments must start with alphanumeric (excludes .well-known paths)
+                if (hostname != null && !GHE_EXCLUDED_HOSTS.contains(hostname.toLowerCase())) {
+                    return path != null && path.matches(
+                        "^/[a-zA-Z0-9][^/]*/[a-zA-Z0-9][^/]*(?:\\.git)?(?:/tree/[^/]+(?:/.*)?)?/?$");
                 }
             } catch (Exception ignored) {}
         }

@@ -12,6 +12,7 @@ public class ProviderRegistry {
     private static final List<HostProvider> PROVIDERS = Arrays.asList(
         new GitHubProvider(),
         new GitLabProvider(),
+        new GitHubEnterpriseProvider(),
         new GitProvider(),
         new LocalProvider(),
         new WellKnownProvider()
